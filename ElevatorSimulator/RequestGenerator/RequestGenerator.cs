@@ -36,5 +36,55 @@ namespace ElevatorSimulator.RequestGenerator
 
         }
 
+        /// <summary>
+        /// Generate elevator requests for each floor
+        /// </summary>
+        /// <returns> List of requests based on the probabilities of requests happening at each floor</returns>
+        public List<Request> GenerateRequests()
+        {
+            // Random number generator used for generating requests
+            var rand = new Random();
+
+            var requests = new List<Request>();
+
+            for (int i = 0; i < this.Building.BuildingFloors; i++)
+            {
+                // If the generated number is smaller than the request probability, generate a request
+                if (rand.NextDouble() < this.RequestProbabilityPerFloor[i])
+                {
+                    new Request(i, this.TargetFloor(i));
+                }
+            }
+
+            return requests;
+        }
+
+        /// <summary>
+        /// Generate the target floor of a request.
+        /// The Target floor cannot be the same as the source floor
+        /// </summary>
+        /// <param name="sourceFloor"> The source floor of the request to prevent the target floor to be the same </param>
+        /// <returns> The destination floor of the requests </returns>
+        private int TargetFloor(int sourceFloor)
+        {
+            double[] score = new double[this.Building.BuildingFloors];
+
+            var rand = new Random();
+
+            for (int i = 0; i < score.Length; i++)
+            {
+                if (i != sourceFloor)
+                {
+                    score[i] = this.RequestProbabilityPerFloor[i] * rand.NextDouble();
+                }
+                else
+                {
+                    score[i] = double.NegativeInfinity;
+                }
+            }
+
+            return score.ToList().IndexOf(score.Max());
+        }
+
     }
 }
