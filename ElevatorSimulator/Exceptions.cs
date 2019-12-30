@@ -6,18 +6,33 @@ using System.Threading.Tasks;
 
 namespace ElevatorSimulator
 {
-    class InvalidSimulationConfigException : Exception
+    class CustomException : Exception
     {
         public new readonly string Message;
 
-        public InvalidSimulationConfigException(string message)
+        public CustomException(string message)
         {
             this.Message = message;
         }
 
         public override string ToString()
         {
-            return "InvalidSimulationConfigException: " + this.Message;
+            return this.GetType().Name + ": " + this.Message;
         }
     }
+
+    class InvalidSimulationConfigException : CustomException
+    {
+        public InvalidSimulationConfigException(string message) : base(message)
+        {
+        }
+    }
+
+    class InvalidWaypointException : CustomException
+    {
+        public InvalidWaypointException(string message) : base(message)
+        {
+        }
+    }
+
 }
