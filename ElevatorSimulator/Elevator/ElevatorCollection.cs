@@ -24,5 +24,16 @@ namespace ElevatorSimulator.Elevator
                 this.Elevators.Add(new Elevator(config));
             }
         }
+
+        public uint Tick()
+        {
+            uint totalEnergyUsed = 0;
+            for (int i = 0; i < this.Elevators.Count(); i++)
+            {
+                totalEnergyUsed += this.Elevators[i].Tick();
+            }
+
+            return totalEnergyUsed;
+        }
     }
 }

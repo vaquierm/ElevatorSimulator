@@ -32,10 +32,16 @@ namespace ElevatorSimulator.ElevatorAI
         }
 
         public abstract void HandleRequests();
+
+        public void NewRequests(List<Request> newRequests)
+        {
+            this.PendingRequests.AddRange(newRequests);
+        }
     }
 
     interface ElevatorController
     {
         void HandleRequests();
+        void NewRequests(List<Request> newRequests);
     }
 }

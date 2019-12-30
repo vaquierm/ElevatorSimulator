@@ -38,6 +38,15 @@ namespace ElevatorSimulator.Elevator
             private set;
         }
 
+        // True if the elevator is currently loading
+        public bool IsLoading
+        {
+            get
+            {
+                return this.LoadingTimeRemaining > 0;
+            }
+        }
+
         public Elevator(SimulationConfiguration config)
         {
             this.Speed = config.ElevatorSpeed;
@@ -84,10 +93,19 @@ namespace ElevatorSimulator.Elevator
             {
                 this.CurrentFloor = nextWaypoint.DestinationFloor;
                 this.Waypoints.Remove(nextWaypoint);
-                this.LoadingTimeRemaining = this.LoadingTime;
+                this.ResetLoadingTime();
             }
 
             return this.EnergyPerTick;
         }
+
+        /// <summary>
+        /// Resets the loading time of the elevator
+        /// </summary>
+        public void ResetLoadingTime()
+        {
+            this.LoadingTimeRemaining = this.LoadingTime;
+        }
     }
+
 }
