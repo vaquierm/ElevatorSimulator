@@ -35,4 +35,18 @@ namespace ElevatorSimulator
         }
     }
 
+    class UnknownAIException : CustomException
+    {
+        public UnknownAIException(string message) : base(message)
+        {
+        }
+    }
+
+    class UnknownRequestGeneratorException : CustomException
+    {
+        public UnknownRequestGeneratorException(string message) : base(message)
+        {
+        }
+    }
+
 }

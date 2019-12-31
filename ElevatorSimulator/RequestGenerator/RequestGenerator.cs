@@ -87,4 +87,19 @@ namespace ElevatorSimulator.RequestGenerator
         }
 
     }
+
+
+    class RequestGeneratorFactory
+    {
+        public static RequestGenerator CreateRequestGenerator(Building building, SimulationConfiguration config)
+        {
+            switch (config.RequestGeneratorType)
+            {
+                case "UNIFORM":
+                    return new RequestGenerator(building, config);
+                default:
+                    throw new UnknownRequestGeneratorException("The request generator type: " + config.RequestGeneratorType + " is unknown.");
+            }
+        }
+    }
 }

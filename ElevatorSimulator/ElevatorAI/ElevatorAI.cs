@@ -39,6 +39,21 @@ namespace ElevatorSimulator.ElevatorAI
         }
     }
 
+    class ElevatorAIFactory
+    {
+        public static ElevatorAI CreateElevatorAI(string AIType, Building building, ElevatorCollection elevators)
+        {
+            switch (AIType)
+            {
+                case "BENCHMARK":
+                    return new BenchmarkAI(building, elevators);
+                default:
+                    throw new UnknownAIException("The Elevator AI: " + AIType + " is unknown.");
+
+            }
+        }
+    }
+
     interface ElevatorController
     {
         void HandleRequests();

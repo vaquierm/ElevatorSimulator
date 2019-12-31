@@ -52,6 +52,8 @@ namespace ElevatorSimulator.Elevator
             this.Speed = config.ElevatorSpeed;
             this.EnergyPerTick = config.EnergyPerTick;
 
+            this.LoadingTime = config.LoadingTime;
+
             this.TopFloor = config.BuildingFloors;
 
             this.Waypoints = new List<ElevatorWaypoint>();

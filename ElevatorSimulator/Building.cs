@@ -37,9 +37,9 @@ namespace ElevatorSimulator
 
             this.Elevators = new ElevatorCollection(config);
 
-            this.ElevatorAI = new BenchmarkAI(this, this.Elevators);
+            this.ElevatorAI = ElevatorAIFactory.CreateElevatorAI(config.AIType, this, this.Elevators);
 
-            this.RequestGenerator = new RequestGenerator.RequestGenerator(this, config);
+            this.RequestGenerator = RequestGeneratorFactory.CreateRequestGenerator(this, config);
         }
 
         /// <summary>
