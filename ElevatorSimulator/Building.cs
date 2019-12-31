@@ -45,8 +45,8 @@ namespace ElevatorSimulator
         /// <summary>
         /// Tick the building by one time unit which moves the elevators according to their waypoints, and services requests
         /// </summary>
-        /// <returns> Return the number of requests that were left unserviced during this tick </returns>
-        public uint Tick()
+        /// <returns> The waiting time that was endured this tick and the energy used by the elevators in the form of a MetricReport </returns>
+        public MetricsReport Tick()
         {
             // Generate the new requests made this tick and create add them to the AI
             var requests = this.RequestGenerator.GenerateRequests();
@@ -84,8 +84,7 @@ namespace ElevatorSimulator
                 }
             }
 
-            // Return the number of requests that are still waiting to be picked up after this tick
-            return (uint) this.ElevatorAI.PendingRequests.Count();
+            return new MetricsReport((uint)this.ElevatorAI.PendingRequests.Count(), energyUsed);
         }
     }
 }

@@ -39,9 +39,24 @@ namespace ElevatorSimulator
             this.Building = new Building(config);
         }
 
-        public void Tick()
+        /// <summary>
+        /// Starts the simulation.
+        /// </summary>
+        /// <returns> A Metrics report that shows all metrics of the simulation </returns>
+        public MetricsReport StartSimulation()
         {
-            this.CurrentTick++;
+            MetricsReport simulationMetrics = new MetricsReport(0, 0);
+
+            while (this.CurrentTick < this.TicksPerDay * this.SimulationDays)
+            {
+                // Increment the simulation time
+                this.CurrentTick++;
+
+                // Make the building tick and update the simulation metrics
+                simulationMetrics += this.Building.Tick();
+            }
+
+            return simulationMetrics;
         }
     }
 
