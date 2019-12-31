@@ -39,11 +39,11 @@ namespace ElevatorSimulator.Elevator
         }
 
         // True if the elevator is currently loading
-        public bool IsLoading
+        public bool IsMoving
         {
             get
             {
-                return this.LoadingTimeRemaining > 0;
+                return this.LoadingTimeRemaining == 0 && this.Waypoints.Count() > 0;
             }
         }
 

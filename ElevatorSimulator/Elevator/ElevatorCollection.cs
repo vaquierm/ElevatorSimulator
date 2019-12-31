@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ElevatorSimulator.Elevator
 {
-    class ElevatorCollection
+    class ElevatorCollection : IEnumerable<Elevator>
     {
         // List of elevators
         public List<Elevator> Elevators
@@ -34,6 +35,16 @@ namespace ElevatorSimulator.Elevator
             }
 
             return totalEnergyUsed;
+        }
+
+        public IEnumerator<Elevator> GetEnumerator()
+        {
+            return this.Elevators.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

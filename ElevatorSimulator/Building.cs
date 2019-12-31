@@ -42,7 +42,11 @@ namespace ElevatorSimulator
             this.RequestGenerator = new RequestGenerator.RequestGenerator(this, config);
         }
 
-        public void Tick()
+        /// <summary>
+        /// Tick the building by one time unit which moves the elevators according to their waypoints, and services requests
+        /// </summary>
+        /// <returns> Return the number of requests that were left unserviced during this tick </returns>
+        public uint Tick()
         {
             // Generate the new requests made this tick and create add them to the AI
             var requests = this.RequestGenerator.GenerateRequests();
@@ -55,10 +59,33 @@ namespace ElevatorSimulator
             uint energyUsed = this.Elevators.Tick();
 
             // Check all the pending requests to see if anyone can be picked up.
-            foreach (Request request in this.ElevatorAI.PendingRequests)
+            foreach (var elevator in this.Elevators)
             {
-                //TODO Logic to load people into elevators
+                if (elevator.IsMoving)
+                {
+                    // If the elevator is currently traveling, it cannot pick up anyone 
+                    continue;
+                }
+
+                // Get all requests that can be picked up by this elevator
+                var requestsAtElevator = this.ElevatorAI.PendingRequests.FindAll(request => request.Source == elevator.CurrentFloor);
+
+                if (requestsAtElevator.Count() > 0)
+                {
+                    // If there are requests at the floor of the stopped elevator, pick them up
+                    foreach (var pickedUpRequest in requestsAtElevator)
+                    {
+                        // Add the requests to the list of requests that have been picked up
+                        this.ElevatorAI.PendingRequests.Remove(pickedUpRequest);
+                        this.ElevatorAI.PickedUpRequests.Add(pickedUpRequest);
+                    }
+                    // Reset the timer of the elevator since a new person got in the elevaotr
+                    elevator.ResetLoadingTime();
+                }
             }
+
+            // Return the number of requests that are still waiting to be picked up after this tick
+            return (uint) this.ElevatorAI.PendingRequests.Count();
         }
     }
 }
