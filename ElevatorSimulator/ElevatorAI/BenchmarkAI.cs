@@ -19,7 +19,13 @@ namespace ElevatorSimulator.ElevatorAI
         /// </summary>
         public override void HandleRequests()
         {
-            
+            foreach (var elevator in this.Elevators)
+            {
+                if (!elevator.IsMoving && this.Building.PendingRequests.Count() > 0)
+                {
+
+                }
+            }
         }
     }
 }

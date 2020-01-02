@@ -29,6 +29,18 @@ namespace ElevatorSimulator
         // Request generaotr to generate elevator requests
         public readonly RequestGenerator.RequestGenerator RequestGenerator;
 
+        public List<Request> PendingRequests
+        {
+            get;
+            private set;
+        }
+
+        public List<Request> PickedUpRequests
+        {
+            get;
+            private set;
+        }
+
         public Building(SimulationConfiguration config)
         {
             this.BuildingFloors = config.BuildingFloors;
@@ -40,6 +52,9 @@ namespace ElevatorSimulator
             this.ElevatorAI = ElevatorAIFactory.CreateElevatorAI(config.AIType, this, this.Elevators);
 
             this.RequestGenerator = RequestGeneratorFactory.CreateRequestGenerator(this, config);
+
+            this.PendingRequests = new List<Request>();
+            this.PickedUpRequests = new List<Request>();
         }
 
         /// <summary>
@@ -48,9 +63,9 @@ namespace ElevatorSimulator
         /// <returns> The waiting time that was endured this tick and the energy used by the elevators in the form of a MetricReport </returns>
         public MetricsReport Tick()
         {
-            // Generate the new requests made this tick and create add them to the AI
+            // Generate the new requests made this tick and create add them to the list of requests pending
             var requests = this.RequestGenerator.GenerateRequests();
-            this.ElevatorAI.NewRequests(requests);
+            this.PendingRequests.AddRange(requests);
 
             // The AI them makes decisions
             this.ElevatorAI.HandleRequests();
@@ -68,7 +83,7 @@ namespace ElevatorSimulator
                 }
 
                 // Get all requests that can be picked up by this elevator
-                var requestsAtElevator = this.ElevatorAI.PendingRequests.FindAll(request => request.Source == elevator.CurrentFloor);
+                var requestsAtElevator = this.PendingRequests.FindAll(request => request.Source == elevator.CurrentFloor);
 
                 if (requestsAtElevator.Count() > 0)
                 {
@@ -76,15 +91,15 @@ namespace ElevatorSimulator
                     foreach (var pickedUpRequest in requestsAtElevator)
                     {
                         // Add the requests to the list of requests that have been picked up
-                        this.ElevatorAI.PendingRequests.Remove(pickedUpRequest);
-                        this.ElevatorAI.PickedUpRequests.Add(pickedUpRequest);
+                        this.PendingRequests.Remove(pickedUpRequest);
+                        this.PickedUpRequests.Add(pickedUpRequest);
                     }
                     // Reset the timer of the elevator since a new person got in the elevaotr
                     elevator.ResetLoadingTime();
                 }
             }
 
-            return new MetricsReport((uint)this.ElevatorAI.PendingRequests.Count(), energyUsed);
+            return new MetricsReport((uint)this.PendingRequests.Count(), energyUsed);
         }
     }
 }

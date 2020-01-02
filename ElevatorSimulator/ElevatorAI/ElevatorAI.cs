@@ -9,17 +9,7 @@ namespace ElevatorSimulator.ElevatorAI
 {
     abstract class ElevatorAI : ElevatorController
     {
-        public List<Request> PendingRequests
-        {
-            get;
-            private set;
-        }
-
-        public List<Request> PickedUpRequests
-        {
-            get;
-            private set;
-        }
+        
 
         public ElevatorCollection Elevators;
 
@@ -30,16 +20,9 @@ namespace ElevatorSimulator.ElevatorAI
             this.Building = building;
             this.Elevators = elevators;
 
-            this.PendingRequests = new List<Request>();
-            this.PickedUpRequests = new List<Request>();
         }
 
         public abstract void HandleRequests();
-
-        public void NewRequests(List<Request> newRequests)
-        {
-            this.PendingRequests.AddRange(newRequests);
-        }
     }
 
     class ElevatorAIFactory
@@ -60,6 +43,5 @@ namespace ElevatorSimulator.ElevatorAI
     interface ElevatorController
     {
         void HandleRequests();
-        void NewRequests(List<Request> newRequests);
     }
 }
