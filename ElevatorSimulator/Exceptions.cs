@@ -49,4 +49,11 @@ namespace ElevatorSimulator
         }
     }
 
+    class InvalidElevatorStateException : CustomException
+    {
+        public InvalidElevatorStateException(string message) : base(message)
+        {
+        }
+    }
+
 }

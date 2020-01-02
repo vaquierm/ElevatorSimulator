@@ -10,16 +10,21 @@ namespace ElevatorSimulator.ElevatorAI
     abstract class ElevatorAI : ElevatorController
     {
         
-
+        // Elevators that can be controlled by the AI
         public ElevatorCollection Elevators;
 
+        // The building that the elevators are in
         public Building Building;
+
+        // The requests that have elevators on their way for
+        public List<Request> HandledRequests;
 
         public ElevatorAI(Building building, ElevatorCollection elevators)
         {
             this.Building = building;
             this.Elevators = elevators;
 
+            this.HandledRequests = new List<Request>();
         }
 
         public abstract void HandleRequests();

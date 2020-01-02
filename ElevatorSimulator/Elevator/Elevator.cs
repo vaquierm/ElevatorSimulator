@@ -82,20 +82,26 @@ namespace ElevatorSimulator.Elevator
             {
                 throw new InvalidWaypointException("The waypoints have to be between 0 and " + this.TopFloor + ". Invalid waypoint at floor " + nextWaypoint.DestinationFloor);
             }
+            if (this.CurrentFloor > this.TopFloor)
+            {
+                throw new InvalidElevatorStateException("The elevator cannot be higher than the top floor. Top floor: " + this.TopFloor + ", Current elevator floor: " + this.CurrentFloor);
+            }
 
-            if (nextWaypoint.DestinationFloor > this.CurrentFloor + this.Speed)
+            if (nextWaypoint.DestinationFloor > this.CurrentFloor && nextWaypoint.DestinationFloor > this.CurrentFloor + this.Speed)
             {
                 this.CurrentFloor += this.Speed;
             }
-            else if (nextWaypoint.DestinationFloor < this.CurrentFloor - this.Speed)
+            else if (nextWaypoint.DestinationFloor < this.CurrentFloor && nextWaypoint.DestinationFloor < this.CurrentFloor - this.Speed)
             {
                 this.CurrentFloor -= this.Speed;
             }
             else
             {
+                uint energySpent = (this.CurrentFloor == nextWaypoint.DestinationFloor) ? 0 : this.EnergyPerTick;
                 this.CurrentFloor = nextWaypoint.DestinationFloor;
                 this.Waypoints.Remove(nextWaypoint);
                 this.ResetLoadingTime();
+                return energySpent;
             }
 
             return this.EnergyPerTick;
@@ -108,6 +114,7 @@ namespace ElevatorSimulator.Elevator
         {
             this.LoadingTimeRemaining = this.LoadingTime;
         }
+
     }
 
 }

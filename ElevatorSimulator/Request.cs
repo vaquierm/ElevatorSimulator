@@ -9,20 +9,20 @@ namespace ElevatorSimulator
     class Request
     {
         // Source floor of the request
-        public int Source
+        public uint Source
         {
             get;
             private set;
         }
 
         // Destination floor of the request
-        public int Destination
+        public uint Destination
         {
             get;
             private set;
         }
 
-        public Request(int source, int destination)
+        public Request(uint source, uint destination)
         {
             this.Destination = destination;
             this.Source = source;

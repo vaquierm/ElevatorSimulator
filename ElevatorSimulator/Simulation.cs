@@ -94,6 +94,15 @@ namespace ElevatorSimulator
         // Interest per floor (The main floor and prehaps floors with shared spaces have higher interest)
         public readonly double[] InterestPerFloor;
 
+        // Total number of resident sin the building
+        public uint TotalResidents
+        {
+            get
+            {
+                return (uint) this.ResidentsPerFloor.Sum(x => (uint) x);
+            }
+        }
+
         public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint elevatorsNumber, uint energyPerTick, string AIType, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentsPerDay, uint[] interestPerFloor)
         {
             this.SimulationDays = simulationDays;

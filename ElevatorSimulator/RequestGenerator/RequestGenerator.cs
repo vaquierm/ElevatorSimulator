@@ -47,7 +47,7 @@ namespace ElevatorSimulator.RequestGenerator
         {
             var requests = new List<Request>();
 
-            for (int i = 0; i < this.Building.BuildingFloors; i++)
+            for (uint i = 0; i < this.Building.BuildingFloors; i++)
             {
                 // If the generated number is smaller than the request probability, generate a request
                 if (this.Rand.NextDouble() < this.RequestProbabilityPerFloor[i])
@@ -65,7 +65,7 @@ namespace ElevatorSimulator.RequestGenerator
         /// </summary>
         /// <param name="sourceFloor"> The source floor of the request to prevent the target floor to be the same </param>
         /// <returns> The destination floor of the requests </returns>
-        private int TargetFloor(int sourceFloor)
+        private uint TargetFloor(uint sourceFloor)
         {
             double[] score = new double[this.Building.BuildingFloors];
 
@@ -83,7 +83,7 @@ namespace ElevatorSimulator.RequestGenerator
                 }
             }
 
-            return score.ToList().IndexOf(score.Max());
+            return (uint) score.ToList().IndexOf(score.Max());
         }
 
     }
