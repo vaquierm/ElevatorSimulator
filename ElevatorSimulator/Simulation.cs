@@ -39,9 +39,31 @@ namespace ElevatorSimulator
             this.Building = new Building(config);
         }
 
-        public void Tick()
+        /// <summary>
+        /// Starts the simulation.
+        /// </summary>
+        /// <returns> A Metrics report that shows all metrics of the simulation </returns>
+        public MetricsReport StartSimulation()
         {
-            this.CurrentTick++;
+            Console.WriteLine("Simulation starting...");
+
+            MetricsReport simulationMetrics = new MetricsReport(0, 0, 0);
+
+            while (this.CurrentTick < this.TicksPerDay * this.SimulationDays)
+            {
+                if (this.CurrentTick % this.TicksPerDay == 0)
+                    Console.WriteLine("Simulation start of day " + this.CurrentTick / this.TicksPerDay);
+
+                // Increment the simulation time
+                this.CurrentTick++;
+
+                // Make the building tick and update the simulation metrics
+                simulationMetrics += this.Building.Tick();
+            }
+
+            Console.WriteLine("Simulation ending...");
+
+            return simulationMetrics;
         }
     }
 
@@ -57,18 +79,35 @@ namespace ElevatorSimulator
         // Energy spent per elevator per tick
         public readonly uint EnergyPerTick;
 
+        // The type of AI that will be used during simulation
+        public readonly string AIType;
+
+        // Request Generator type
+        public readonly string RequestGeneratorType;
+
         // Number of floors in the simulation building
         public readonly uint BuildingFloors;
         // Speed in floors per tick that elevators travel
         public readonly uint ElevatorSpeed;
+        // Loading time in ticks
+        public readonly uint LoadingTime;
         // Rsidents per floor in an array
-        public readonly double[] ResidentsPerFloor;
+        public readonly uint[] ResidentsPerFloor;
         // Average number of requests per day per residents
         public readonly uint AverageRequestsPerResidentPerDay;
         // Interest per floor (The main floor and prehaps floors with shared spaces have higher interest)
         public readonly double[] InterestPerFloor;
 
-        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint elevatorsNumber, uint energyPerTick, uint buildingFloors, uint elevatorSpeed, uint[] residentsPerFloor, uint averageRequestsPerResidentsPerDay, uint[] interestPerFloor)
+        // Total number of resident sin the building
+        public uint TotalResidents
+        {
+            get
+            {
+                return (uint) this.ResidentsPerFloor.Sum(x => (uint) x);
+            }
+        }
+
+        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint elevatorsNumber, uint energyPerTick, string AIType, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentsPerDay, uint[] interestPerFloor)
         {
             this.SimulationDays = simulationDays;
             this.TicksPerDay = ticksPerDay;
@@ -76,11 +115,14 @@ namespace ElevatorSimulator
             this.NumberOfElevators = elevatorsNumber;
             this.EnergyPerTick = energyPerTick;
 
+            this.AIType = AIType;
+            this.RequestGeneratorType = requestGeneratorType;
+
             this.BuildingFloors = buildingFloors;
             this.ElevatorSpeed = elevatorSpeed;
+            this.LoadingTime = loadingTime;
 
-            long totalResidents = residentsPerFloor.Sum(x => x);
-            this.ResidentsPerFloor = residentsPerFloor.Select(residents => ((double)residents / totalResidents)).ToArray();
+            this.ResidentsPerFloor = residentsPerFloor;
 
             this.AverageRequestsPerResidentPerDay = averageRequestsPerResidentsPerDay;
 
@@ -106,9 +148,17 @@ namespace ElevatorSimulator
             {
                 throw new InvalidSimulationConfigException("The number of ticks per day must be positive and non zero");
             }
-            if (this.BuildingFloors > 1)
+            if (this.BuildingFloors < 1)
             {
                 throw new InvalidSimulationConfigException("There must be at least more than one floor in the building");
+            }
+            if (this.ElevatorSpeed <= 0)
+            {
+                throw new InvalidSimulationConfigException("The speed of the elevator in floors per tick must be a positive number");
+            }
+            if (this.LoadingTime <= 0)
+            {
+                throw new InvalidSimulationConfigException("The loading time must be bigger than 0 ticks");
             }
             if (this.SimulationDays <= 0)
             {

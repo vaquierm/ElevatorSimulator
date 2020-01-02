@@ -14,6 +14,9 @@ namespace ElevatorSimulator.RequestGenerator
         // The building the request generator is associated to
         public readonly Building Building;
 
+        // Random number generator used for generating requests
+        private Random Rand = new Random();
+
         public RequestGenerator(Building building, SimulationConfiguration config)
         {
             this.Building = building;
@@ -22,7 +25,7 @@ namespace ElevatorSimulator.RequestGenerator
 
             for (int i = 0; i < this.Building.BuildingFloors; i++)
             {
-                this.RequestProbabilityPerFloor[i] = (config.AverageRequestsPerResidentPerDay * building.ResidentPerFloor[i]) / config.TicksPerDay;
+                this.RequestProbabilityPerFloor[i] = ((double) config.AverageRequestsPerResidentPerDay * building.ResidentPerFloor[i]) / config.TicksPerDay;
             }
 
             double meanInterest = config.InterestPerFloor.Sum() / this.Building.BuildingFloors;
@@ -36,5 +39,67 @@ namespace ElevatorSimulator.RequestGenerator
 
         }
 
+        /// <summary>
+        /// Generate elevator requests for each floor
+        /// </summary>
+        /// <returns> List of requests based on the probabilities of requests happening at each floor</returns>
+        public List<Request> GenerateRequests()
+        {
+            var requests = new List<Request>();
+
+            for (uint i = 0; i < this.Building.BuildingFloors; i++)
+            {
+                // If the generated number is smaller than the request probability, generate a request
+                if (this.Rand.NextDouble() < this.RequestProbabilityPerFloor[i])
+                {
+                    requests.Add(new Request(i, this.TargetFloor(i)));
+                }
+            }
+
+            return requests;
+        }
+
+        /// <summary>
+        /// Generate the target floor of a request.
+        /// The Target floor cannot be the same as the source floor
+        /// </summary>
+        /// <param name="sourceFloor"> The source floor of the request to prevent the target floor to be the same </param>
+        /// <returns> The destination floor of the requests </returns>
+        private uint TargetFloor(uint sourceFloor)
+        {
+            double[] score = new double[this.Building.BuildingFloors];
+
+            var rand = new Random();
+
+            for (int i = 0; i < score.Length; i++)
+            {
+                if (i != sourceFloor)
+                {
+                    score[i] = this.RequestProbabilityPerFloor[i] * rand.NextDouble();
+                }
+                else
+                {
+                    score[i] = double.NegativeInfinity;
+                }
+            }
+
+            return (uint) score.ToList().IndexOf(score.Max());
+        }
+
+    }
+
+
+    class RequestGeneratorFactory
+    {
+        public static RequestGenerator CreateRequestGenerator(Building building, SimulationConfiguration config)
+        {
+            switch (config.RequestGeneratorType)
+            {
+                case "UNIFORM":
+                    return new RequestGenerator(building, config);
+                default:
+                    throw new UnknownRequestGeneratorException("The request generator type: " + config.RequestGeneratorType + " is unknown.");
+            }
+        }
     }
 }
