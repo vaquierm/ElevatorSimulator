@@ -41,11 +41,15 @@ namespace ElevatorSimulator.ElevatorAI
 
                 // Add the waypoints to the elevators
                 availibleElevators[closestElevatorIndex].Waypoints.Add(new ElevatorWaypoint(request.Source));
-                availibleElevators[closestElevatorIndex].Waypoints.Add(new ElevatorWaypoint(request.Destination));
 
                 // Mark the request as handled
                 this.HandledRequests.Add(request);
             }
+        }
+
+        public override void NotifyDropOff(Request request)
+        {
+            // The benchmark AI does nothing with this information
         }
     }
 }

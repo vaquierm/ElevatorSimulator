@@ -35,12 +35,6 @@ namespace ElevatorSimulator
             private set;
         }
 
-        public List<Request> PickedUpRequests
-        {
-            get;
-            private set;
-        }
-
         public Building(SimulationConfiguration config)
         {
             this.BuildingFloors = config.BuildingFloors;
@@ -54,7 +48,6 @@ namespace ElevatorSimulator
             this.RequestGenerator = RequestGeneratorFactory.CreateRequestGenerator(this, config);
 
             this.PendingRequests = new List<Request>();
-            this.PickedUpRequests = new List<Request>();
         }
 
         /// <summary>
@@ -90,16 +83,40 @@ namespace ElevatorSimulator
                     // If there are requests at the floor of the stopped elevator, pick them up
                     foreach (var pickedUpRequest in requestsAtElevator)
                     {
-                        // Add the requests to the list of requests that have been picked up
+                        // Add the requests to the list of requests that have been picked up by this elevator
                         this.PendingRequests.Remove(pickedUpRequest);
-                        this.PickedUpRequests.Add(pickedUpRequest);
+                        elevator.PickedUpRequests.Add(pickedUpRequest);
+
+                        // Add the destination waypoint to the elevator once it picks up the person
+                        elevator.Waypoints.Add(new ElevatorWaypoint(pickedUpRequest.Destination));
+
+                        // Notify the AI that the request has been picked up
+                        this.ElevatorAI.NotifyPickUp(pickedUpRequest);
                     }
-                    // Reset the timer of the elevator since a new person got in the elevaotr
+                    // Reset the timer of the elevator since a new person got in the elevator
                     elevator.ResetLoadingTime();
                 }
+
+                // Now check if there are any requests that can be dropped off
+                var requestsToDropOff = elevator.PickedUpRequests.FindAll(request => request.Destination == elevator.CurrentFloor);
+
+                if (requestsToDropOff.Count() > 0)
+                {
+                    // If there are requests that want to get off at thos floor. drop them off
+                    foreach (var droppedOffRequest in requestsToDropOff)
+                    {
+                        // Remove the request from the requests the elevator is currently handlind
+                        elevator.PickedUpRequests.Remove(droppedOffRequest);
+                        // Notify the AI that the request has been dropped off
+                        this.ElevatorAI.NotifyDropOff(droppedOffRequest);
+                    }
+                    // Reset the timer of the elevator since a new person left the elevator
+                    elevator.ResetLoadingTime();
+                }
+
             }
 
-            return new MetricsReport((uint)this.PendingRequests.Count(), energyUsed);
+            return new MetricsReport((uint) this.PendingRequests.Count(), (uint) this.Elevators.PickedUpRequestsCount, energyUsed);
         }
     }
 }

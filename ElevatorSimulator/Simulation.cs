@@ -45,7 +45,9 @@ namespace ElevatorSimulator
         /// <returns> A Metrics report that shows all metrics of the simulation </returns>
         public MetricsReport StartSimulation()
         {
-            MetricsReport simulationMetrics = new MetricsReport(0, 0);
+            Console.WriteLine("Simulation starting...");
+
+            MetricsReport simulationMetrics = new MetricsReport(0, 0, 0);
 
             while (this.CurrentTick < this.TicksPerDay * this.SimulationDays)
             {
@@ -58,6 +60,8 @@ namespace ElevatorSimulator
                 // Make the building tick and update the simulation metrics
                 simulationMetrics += this.Building.Tick();
             }
+
+            Console.WriteLine("Simulation ending...");
 
             return simulationMetrics;
         }

@@ -28,6 +28,13 @@ namespace ElevatorSimulator.ElevatorAI
         }
 
         public abstract void HandleRequests();
+
+        public void NotifyPickUp(Request request)
+        {
+            this.HandledRequests.Remove(request);
+        }
+
+        public abstract void NotifyDropOff(Request request);
     }
 
     class ElevatorAIFactory
@@ -48,5 +55,9 @@ namespace ElevatorSimulator.ElevatorAI
     interface ElevatorController
     {
         void HandleRequests();
+
+        void NotifyPickUp(Request request);
+
+        void NotifyDropOff(Request request);
     }
 }

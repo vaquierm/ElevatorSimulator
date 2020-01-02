@@ -15,6 +15,15 @@ namespace ElevatorSimulator.Elevator
             get;
             private set;
         }
+
+        // Count of all requests that are currently being serviced by the elevators
+        public int PickedUpRequestsCount
+        {
+            get
+            {
+                return this.Elevators.Sum(elevator => elevator.PickedUpRequests.Count());
+            }
+        }
         
         public ElevatorCollection(SimulationConfiguration config)
         {

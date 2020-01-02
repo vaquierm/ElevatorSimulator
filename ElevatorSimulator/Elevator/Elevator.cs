@@ -25,6 +25,9 @@ namespace ElevatorSimulator.Elevator
             private set;
         }
 
+        // The list of requests that are currently being serviced by this elevator
+        public readonly List<Request> PickedUpRequests;
+
         // Waypoints that the elevator has to go to
         public readonly List<ElevatorWaypoint> Waypoints;
 
@@ -57,6 +60,7 @@ namespace ElevatorSimulator.Elevator
             this.TopFloor = config.BuildingFloors;
 
             this.Waypoints = new List<ElevatorWaypoint>();
+            this.PickedUpRequests = new List<Request>();
         }
 
         /// <summary>
@@ -72,6 +76,10 @@ namespace ElevatorSimulator.Elevator
 
             if (this.LoadingTimeRemaining > 0)
             {
+                if (this.LoadingTimeRemaining > this.LoadingTime)
+                {
+                    throw new InvalidElevatorStateException("The elevator cannot have a loading time remaining higher than the max loading time. Max loading time: " + this.LoadingTime + ", Loading time remaining: " + this.LoadingTimeRemaining);
+                }
                 this.LoadingTimeRemaining--;
                 return 0;
             }
