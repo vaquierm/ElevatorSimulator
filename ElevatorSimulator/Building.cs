@@ -15,7 +15,7 @@ namespace ElevatorSimulator
         public readonly uint BuildingFloors;
 
         // Percentage of residents per floor
-        public readonly double[] ResidentPerFloor;
+        public readonly uint[] ResidentPerFloor;
 
         // Percentage of interest per floor
         public readonly double[] InterestPerFloor;

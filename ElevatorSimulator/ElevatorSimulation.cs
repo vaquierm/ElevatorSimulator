@@ -10,12 +10,14 @@ namespace ElevatorSimulator
     {
         static void Main(string[] args)
         {
-            // The code provided will print ‘Hello World’ to the console.
-            // Press Ctrl+F5 (or go to Debug > Start Without Debugging) to run your app.
-            Console.WriteLine("Hello World!");
-            Console.ReadKey();
+            Console.WriteLine("Simulation starting...");
+            uint[] residentsPerFloor = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
+            uint[] interestPerFloor = { 3, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            var config = new SimulationConfiguration(1, 86400, 4, 1, "BENCHMARK", "UNIFORM", 10, 1, 5, residentsPerFloor, 10, interestPerFloor);
+            var report = new Simulation(config).StartSimulation();
 
-            // Go to http://aka.ms/dotnet-get-started-console to continue learning how to build a console app! 
+            Console.WriteLine(report);
+            Console.ReadKey();
         }
     }
 }

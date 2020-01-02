@@ -19,7 +19,7 @@ namespace ElevatorSimulator.ElevatorAI
         /// </summary>
         public override void HandleRequests()
         {
-
+            
         }
     }
 }

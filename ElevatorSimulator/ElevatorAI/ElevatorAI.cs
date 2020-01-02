@@ -29,6 +29,9 @@ namespace ElevatorSimulator.ElevatorAI
         {
             this.Building = building;
             this.Elevators = elevators;
+
+            this.PendingRequests = new List<Request>();
+            this.PickedUpRequests = new List<Request>();
         }
 
         public abstract void HandleRequests();

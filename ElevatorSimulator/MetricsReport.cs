@@ -34,5 +34,10 @@ namespace ElevatorSimulator
 
         public static MetricsReport operator -(MetricsReport a, MetricsReport b)
             => new MetricsReport(a.WaitingTime - b.WaitingTime, a.EnergyUsed - b.EnergyUsed);
+
+        public override string ToString()
+        {
+            return "Waiting Time: " + this.WaitingTime + "ticks, Energy Used: " + this.EnergyUsed + "energy units.";
+        }
     }
 }

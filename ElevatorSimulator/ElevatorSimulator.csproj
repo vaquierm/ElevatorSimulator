@@ -50,6 +50,7 @@
     <Compile Include="Elevator\ElevatorCollection.cs" />
     <Compile Include="Elevator\ElevatorWaypoint.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="MetricsReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="RequestGenerator\RequestGenerator.cs" />

@@ -14,6 +14,9 @@ namespace ElevatorSimulator.RequestGenerator
         // The building the request generator is associated to
         public readonly Building Building;
 
+        // Random number generator used for generating requests
+        private Random Rand = new Random();
+
         public RequestGenerator(Building building, SimulationConfiguration config)
         {
             this.Building = building;
@@ -22,7 +25,7 @@ namespace ElevatorSimulator.RequestGenerator
 
             for (int i = 0; i < this.Building.BuildingFloors; i++)
             {
-                this.RequestProbabilityPerFloor[i] = (config.AverageRequestsPerResidentPerDay * building.ResidentPerFloor[i]) / config.TicksPerDay;
+                this.RequestProbabilityPerFloor[i] = ((double) config.AverageRequestsPerResidentPerDay * building.ResidentPerFloor[i]) / config.TicksPerDay;
             }
 
             double meanInterest = config.InterestPerFloor.Sum() / this.Building.BuildingFloors;
@@ -42,17 +45,14 @@ namespace ElevatorSimulator.RequestGenerator
         /// <returns> List of requests based on the probabilities of requests happening at each floor</returns>
         public List<Request> GenerateRequests()
         {
-            // Random number generator used for generating requests
-            var rand = new Random();
-
             var requests = new List<Request>();
 
             for (int i = 0; i < this.Building.BuildingFloors; i++)
             {
                 // If the generated number is smaller than the request probability, generate a request
-                if (rand.NextDouble() < this.RequestProbabilityPerFloor[i])
+                if (this.Rand.NextDouble() < this.RequestProbabilityPerFloor[i])
                 {
-                    new Request(i, this.TargetFloor(i));
+                    requests.Add(new Request(i, this.TargetFloor(i)));
                 }
             }
 

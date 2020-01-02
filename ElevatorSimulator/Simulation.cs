@@ -49,6 +49,9 @@ namespace ElevatorSimulator
 
             while (this.CurrentTick < this.TicksPerDay * this.SimulationDays)
             {
+                if (this.CurrentTick % this.TicksPerDay == 0)
+                    Console.WriteLine("Simulation start of day " + this.CurrentTick / this.TicksPerDay);
+
                 // Increment the simulation time
                 this.CurrentTick++;
 
@@ -85,7 +88,7 @@ namespace ElevatorSimulator
         // Loading time in ticks
         public readonly uint LoadingTime;
         // Rsidents per floor in an array
-        public readonly double[] ResidentsPerFloor;
+        public readonly uint[] ResidentsPerFloor;
         // Average number of requests per day per residents
         public readonly uint AverageRequestsPerResidentPerDay;
         // Interest per floor (The main floor and prehaps floors with shared spaces have higher interest)
@@ -106,8 +109,7 @@ namespace ElevatorSimulator
             this.ElevatorSpeed = elevatorSpeed;
             this.LoadingTime = loadingTime;
 
-            long totalResidents = residentsPerFloor.Sum(x => x);
-            this.ResidentsPerFloor = residentsPerFloor.Select(residents => ((double)residents / totalResidents)).ToArray();
+            this.ResidentsPerFloor = residentsPerFloor;
 
             this.AverageRequestsPerResidentPerDay = averageRequestsPerResidentsPerDay;
 
@@ -133,15 +135,15 @@ namespace ElevatorSimulator
             {
                 throw new InvalidSimulationConfigException("The number of ticks per day must be positive and non zero");
             }
-            if (this.BuildingFloors > 1)
+            if (this.BuildingFloors < 1)
             {
                 throw new InvalidSimulationConfigException("There must be at least more than one floor in the building");
             }
-            if (this.ElevatorSpeed > 0)
+            if (this.ElevatorSpeed <= 0)
             {
                 throw new InvalidSimulationConfigException("The speed of the elevator in floors per tick must be a positive number");
             }
-            if (this.LoadingTime > 0)
+            if (this.LoadingTime <= 0)
             {
                 throw new InvalidSimulationConfigException("The loading time must be bigger than 0 ticks");
             }
