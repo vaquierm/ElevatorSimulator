@@ -39,8 +39,8 @@ namespace ElevatorSimulator.ElevatorAI
                 var distanceElevatorToRequest = availibleElevators.Select(elevator => Math.Abs((int) elevator.CurrentFloor - (int) request.Source)).ToList();
                 int closestElevatorIndex = distanceElevatorToRequest.IndexOf(distanceElevatorToRequest.Min());
 
-                // Add the waypoints to the elevators
-                availibleElevators[closestElevatorIndex].Waypoints.Add(new ElevatorWaypoint(request.Source));
+                // Add the waypoints to the elevator
+                availibleElevators[closestElevatorIndex].Waypoints.Add(new ElevatorWaypoint(request.Source, WaypointType.PICK_UP));
 
                 // Mark the request as handled
                 this.HandledRequests.Add(request);

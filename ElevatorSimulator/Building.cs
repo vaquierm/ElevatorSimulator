@@ -88,7 +88,7 @@ namespace ElevatorSimulator
                         elevator.PickedUpRequests.Add(pickedUpRequest);
 
                         // Add the destination waypoint to the elevator once it picks up the person
-                        elevator.Waypoints.Add(new ElevatorWaypoint(pickedUpRequest.Destination));
+                        elevator.Waypoints.Add(new ElevatorWaypoint(pickedUpRequest.Destination, WaypointType.DROP_OFF));
 
                         // Notify the AI that the request has been picked up
                         this.ElevatorAI.NotifyPickUp(pickedUpRequest);

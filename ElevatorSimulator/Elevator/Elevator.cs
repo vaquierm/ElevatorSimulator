@@ -108,7 +108,12 @@ namespace ElevatorSimulator.Elevator
                 uint energySpent = (this.CurrentFloor == nextWaypoint.DestinationFloor) ? 0 : this.EnergyPerTick;
                 this.CurrentFloor = nextWaypoint.DestinationFloor;
                 this.Waypoints.Remove(nextWaypoint);
-                this.ResetLoadingTime();
+
+                if (nextWaypoint.WaypointType != WaypointType.RELOCATION)
+                {
+                    // Only reset the loading time if the waypoint is not just a relocation waypoint.
+                    this.ResetLoadingTime();
+                }
                 return energySpent;
             }
 
