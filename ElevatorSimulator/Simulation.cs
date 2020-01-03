@@ -97,6 +97,8 @@ namespace ElevatorSimulator
         public readonly uint AverageRequestsPerResidentPerDay;
         // Interest per floor (The main floor and prehaps floors with shared spaces have higher interest)
         public readonly double[] InterestPerFloor;
+        // Interest per floor non normalized
+        private readonly uint[] InterestPerFloorNonNormalized;
 
         // Total number of resident sin the building
         public uint TotalResidents
@@ -107,12 +109,12 @@ namespace ElevatorSimulator
             }
         }
 
-        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint elevatorsNumber, uint energyPerTick, string AIType, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentsPerDay, uint[] interestPerFloor)
+        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint numberOfElevators, uint energyPerTick, string AIType, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentPerDay, uint[] interestPerFloor)
         {
             this.SimulationDays = simulationDays;
             this.TicksPerDay = ticksPerDay;
 
-            this.NumberOfElevators = elevatorsNumber;
+            this.NumberOfElevators = numberOfElevators;
             this.EnergyPerTick = energyPerTick;
 
             this.AIType = AIType;
@@ -124,10 +126,12 @@ namespace ElevatorSimulator
 
             this.ResidentsPerFloor = residentsPerFloor;
 
-            this.AverageRequestsPerResidentPerDay = averageRequestsPerResidentsPerDay;
+            this.AverageRequestsPerResidentPerDay = averageRequestsPerResidentPerDay;
 
             long totalInterest = interestPerFloor.Sum(x => x);
             this.InterestPerFloor = interestPerFloor.Select(interest => ((double)interest / totalInterest)).ToArray();
+
+            this.InterestPerFloorNonNormalized = interestPerFloor;
 
             // Check if the configuration is valid
             this.CheckValidity();
@@ -168,6 +172,30 @@ namespace ElevatorSimulator
             {
                 throw new InvalidSimulationConfigException("The average number of requests a resident makes per day must be positive and non zero");
             }
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.Append("Simulation days: " + this.SimulationDays + "\n");
+            builder.Append("Ticks per day: " + this.TicksPerDay + "\n");
+
+            builder.Append("Number of elevators: " + this.NumberOfElevators + "\n");
+            builder.Append("Energy per tick: " + this.EnergyPerTick + "\n");
+
+            builder.Append("AI typer: " + this.AIType + "\n");
+            builder.Append("Request generator type: " + this.RequestGeneratorType + "\n");
+
+            builder.Append("Building floors: " + this.BuildingFloors + "\n");
+            builder.Append("Elevator speed: " + this.ElevatorSpeed + "\n");
+
+            builder.Append("Loading time: " + this.LoadingTime + "\n");
+            builder.Append("Average requests per person per day" + this.AverageRequestsPerResidentPerDay + "\n");
+
+            builder.Append("Residents per floor: [" + string.Join(", ", this.ResidentsPerFloor) + "]\n");
+            builder.Append("Interest per floor: [" + string.Join(", ", this.InterestPerFloorNonNormalized) + "]\n");
+
+            return builder.ToString();
         }
     }
 }
