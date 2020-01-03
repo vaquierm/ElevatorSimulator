@@ -107,12 +107,12 @@ namespace ElevatorSimulator
             }
         }
 
-        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint elevatorsNumber, uint energyPerTick, string AIType, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentsPerDay, uint[] interestPerFloor)
+        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint numberOfElevators, uint energyPerTick, string AIType, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentPerDay, uint[] interestPerFloor)
         {
             this.SimulationDays = simulationDays;
             this.TicksPerDay = ticksPerDay;
 
-            this.NumberOfElevators = elevatorsNumber;
+            this.NumberOfElevators = numberOfElevators;
             this.EnergyPerTick = energyPerTick;
 
             this.AIType = AIType;
@@ -124,7 +124,7 @@ namespace ElevatorSimulator
 
             this.ResidentsPerFloor = residentsPerFloor;
 
-            this.AverageRequestsPerResidentPerDay = averageRequestsPerResidentsPerDay;
+            this.AverageRequestsPerResidentPerDay = averageRequestsPerResidentPerDay;
 
             long totalInterest = interestPerFloor.Sum(x => x);
             this.InterestPerFloor = interestPerFloor.Select(interest => ((double)interest / totalInterest)).ToArray();
