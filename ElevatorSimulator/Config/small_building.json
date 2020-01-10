@@ -1,11 +1,11 @@
 {
   "SimulationDays": 5,
   "TicksPerDay": 86400,
-  "NumberOfElevators": 2,
+  "NumberOfElevators": 10,
   "EnergyPerTick": 1,
   "AIType": "BENCHMARK",
   "RequestGeneratorType": "UNIFORM",
-  "BuildingFloors": 10,
+  "BuildingFloors": 1,
   "ElevatorSpeed": 1,
   "LoadingTime": 5,
   "ResidentsPerFloor": [

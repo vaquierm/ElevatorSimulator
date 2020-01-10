@@ -16,7 +16,7 @@ namespace ElevatorSimulator.Elevator
         public readonly uint EnergyPerTick;
 
         // Total number of floors in the building
-        private uint TopFloor;
+        private readonly uint TopFloor;
 
         // The current floor that the elevator is at
         public uint CurrentFloor
@@ -47,6 +47,15 @@ namespace ElevatorSimulator.Elevator
             get
             {
                 return this.LoadingTimeRemaining == 0 && this.Waypoints.Count() > 0;
+            }
+        }
+
+        // True if the elevator is currently relocating
+        public bool IsRelocating
+        {
+            get
+            {
+                return this.Waypoints.Count() > 0 && this.Waypoints.First().WaypointType == WaypointType.RELOCATION;
             }
         }
 
@@ -126,6 +135,21 @@ namespace ElevatorSimulator.Elevator
         public void ResetLoadingTime()
         {
             this.LoadingTimeRemaining = this.LoadingTime;
+        }
+
+        /// <summary>
+        /// Cancels the relocation process of the elevator to enable it to go service a request
+        /// </summary>
+        public void CancelRelocation()
+        {
+            if (this.IsRelocating)
+            {
+                this.Waypoints.RemoveAt(0);
+            }
+            else
+            {
+                throw new InvalidElevatorStateException("Cannot cancel the relocation of the elevator if the elevator is not relocating");
+            }
         }
 
     }
