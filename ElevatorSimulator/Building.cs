@@ -43,7 +43,7 @@ namespace ElevatorSimulator
 
             this.Elevators = new ElevatorCollection(config);
 
-            this.ElevatorAI = ElevatorAIFactory.CreateElevatorAI(config.AIType, this, this.Elevators);
+            this.ElevatorAI = ElevatorAIFactory.CreateElevatorAI(this, this.Elevators, config);
 
             this.RequestGenerator = RequestGeneratorFactory.CreateRequestGenerator(this, config);
 
@@ -59,6 +59,12 @@ namespace ElevatorSimulator
             // Generate the new requests made this tick and create add them to the list of requests pending
             var requests = this.RequestGenerator.GenerateRequests();
             this.PendingRequests.AddRange(requests);
+
+            // Notify the smart relocator of the requests
+            foreach (var r in requests)
+            {
+                this.ElevatorAI.Relocator?.NotifyRequest(r);
+            }
 
             // The AI them makes decisions
             this.ElevatorAI.HandleRequests();
@@ -88,7 +94,7 @@ namespace ElevatorSimulator
                         elevator.PickedUpRequests.Add(pickedUpRequest);
 
                         // Add the destination waypoint to the elevator once it picks up the person
-                        elevator.Waypoints.Add(new ElevatorWaypoint(pickedUpRequest.Destination));
+                        elevator.Waypoints.Add(new ElevatorWaypoint(pickedUpRequest.Destination, WaypointType.DROP_OFF));
 
                         // Notify the AI that the request has been picked up
                         this.ElevatorAI.NotifyPickUp(pickedUpRequest);
@@ -108,7 +114,7 @@ namespace ElevatorSimulator
                         // Remove the request from the requests the elevator is currently handlind
                         elevator.PickedUpRequests.Remove(droppedOffRequest);
                         // Notify the AI that the request has been dropped off
-                        this.ElevatorAI.NotifyDropOff(droppedOffRequest);
+                        this.ElevatorAI.NotifyDropOff(elevator, droppedOffRequest);
                     }
                     // Reset the timer of the elevator since a new person left the elevator
                     elevator.ResetLoadingTime();

@@ -48,6 +48,7 @@
     <Compile Include="Building.cs" />
     <Compile Include="ElevatorAI\BenchmarkAI.cs" />
     <Compile Include="ElevatorAI\ElevatorAI.cs" />
+    <Compile Include="ElevatorAI\PredictiveRelocatorPluggin.cs" />
     <Compile Include="ElevatorSimulation.cs" />
     <Compile Include="Elevator\Elevator.cs" />
     <Compile Include="Elevator\ElevatorCollection.cs" />
@@ -61,9 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Config\peterson_building.json" />
     <None Include="Config\small_building.json" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

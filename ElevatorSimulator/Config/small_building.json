@@ -1,7 +1,7 @@
 {
   "SimulationDays": 5,
   "TicksPerDay": 86400,
-  "NumberOfElevators": 2,
+  "NumberOfElevators": 10,
   "EnergyPerTick": 1,
   "AIType": "BENCHMARK",
   "RequestGeneratorType": "UNIFORM",

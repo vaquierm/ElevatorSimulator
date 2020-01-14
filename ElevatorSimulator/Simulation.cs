@@ -81,6 +81,8 @@ namespace ElevatorSimulator
 
         // The type of AI that will be used during simulation
         public readonly string AIType;
+        // True to activate the smart relocation of idle elevators after dropping off passengers.
+        public readonly bool SmartRelocation;
 
         // Request Generator type
         public readonly string RequestGeneratorType;
@@ -109,7 +111,7 @@ namespace ElevatorSimulator
             }
         }
 
-        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint numberOfElevators, uint energyPerTick, string AIType, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentPerDay, uint[] interestPerFloor)
+        public SimulationConfiguration(uint simulationDays, uint ticksPerDay, uint numberOfElevators, uint energyPerTick, string AIType, bool smartRelocation, string requestGeneratorType, uint buildingFloors, uint elevatorSpeed, uint loadingTime, uint[] residentsPerFloor, uint averageRequestsPerResidentPerDay, uint[] interestPerFloor)
         {
             this.SimulationDays = simulationDays;
             this.TicksPerDay = ticksPerDay;
@@ -118,6 +120,7 @@ namespace ElevatorSimulator
             this.EnergyPerTick = energyPerTick;
 
             this.AIType = AIType;
+            this.SmartRelocation = smartRelocation;
             this.RequestGeneratorType = requestGeneratorType;
 
             this.BuildingFloors = buildingFloors;
@@ -183,7 +186,8 @@ namespace ElevatorSimulator
             builder.Append("Number of elevators: " + this.NumberOfElevators + "\n");
             builder.Append("Energy per tick: " + this.EnergyPerTick + "\n");
 
-            builder.Append("AI typer: " + this.AIType + "\n");
+            builder.Append("AI type: " + this.AIType + "\n");
+            builder.Append("Smart Relocator: " + this.SmartRelocation + "\n");
             builder.Append("Request generator type: " + this.RequestGeneratorType + "\n");
 
             builder.Append("Building floors: " + this.BuildingFloors + "\n");

@@ -16,7 +16,7 @@ namespace ElevatorSimulator.Elevator
         public readonly uint EnergyPerTick;
 
         // Total number of floors in the building
-        private uint TopFloor;
+        private readonly uint TopFloor;
 
         // The current floor that the elevator is at
         public uint CurrentFloor
@@ -41,12 +41,30 @@ namespace ElevatorSimulator.Elevator
             private set;
         }
 
-        // True if the elevator is currently loading
+        // True if the elevator is moving
         public bool IsMoving
         {
             get
             {
                 return this.LoadingTimeRemaining == 0 && this.Waypoints.Count() > 0;
+            }
+        }
+
+        // True if the elevator is not loading or unloading anyone and is not going anywhere
+        public bool IsIdle
+        {
+            get
+            {
+                return this.Waypoints.Count() == 0;
+            }
+        }
+
+        // True if the elevator is currently relocating
+        public bool IsRelocating
+        {
+            get
+            {
+                return this.Waypoints.Count() > 0 && this.Waypoints.First().WaypointType == WaypointType.RELOCATION;
             }
         }
 
@@ -108,7 +126,12 @@ namespace ElevatorSimulator.Elevator
                 uint energySpent = (this.CurrentFloor == nextWaypoint.DestinationFloor) ? 0 : this.EnergyPerTick;
                 this.CurrentFloor = nextWaypoint.DestinationFloor;
                 this.Waypoints.Remove(nextWaypoint);
-                this.ResetLoadingTime();
+
+                if (nextWaypoint.WaypointType != WaypointType.RELOCATION)
+                {
+                    // Only reset the loading time if the waypoint is not just a relocation waypoint.
+                    this.ResetLoadingTime();
+                }
                 return energySpent;
             }
 
@@ -121,6 +144,21 @@ namespace ElevatorSimulator.Elevator
         public void ResetLoadingTime()
         {
             this.LoadingTimeRemaining = this.LoadingTime;
+        }
+
+        /// <summary>
+        /// Cancels the relocation process of the elevator to enable it to go service a request
+        /// </summary>
+        public void CancelRelocation()
+        {
+            if (this.IsRelocating)
+            {
+                this.Waypoints.RemoveAt(0);
+            }
+            else
+            {
+                throw new InvalidElevatorStateException("Cannot cancel the relocation of the elevator if the elevator is not relocating");
+            }
         }
 
     }

@@ -11,9 +11,17 @@ namespace ElevatorSimulator.Elevator
         // The destination of the elevator
         public readonly uint DestinationFloor;
 
-        public ElevatorWaypoint(uint destinationFloor)
+        // The type of waypoint
+        public readonly WaypointType WaypointType;
+
+        public ElevatorWaypoint(uint destinationFloor, WaypointType waypointType)
         {
             this.DestinationFloor = destinationFloor;
+            this.WaypointType = waypointType;
         }
+    }
+
+    enum WaypointType {
+        PICK_UP, DROP_OFF, RELOCATION
     }
 }

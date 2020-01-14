@@ -27,7 +27,7 @@ namespace ElevatorSimulator
         {
             get
             {
-                return this.WaitingTime + TravelTime;
+                return this.WaitingTime + this.TravelTime;
             }
         }
 
