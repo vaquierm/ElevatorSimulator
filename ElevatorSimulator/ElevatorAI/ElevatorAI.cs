@@ -19,12 +19,25 @@ namespace ElevatorSimulator.ElevatorAI
         // The requests that have elevators on their way for
         public List<Request> HandledRequests;
 
-        public ElevatorAI(Building building, ElevatorCollection elevators)
+        // The Smart relocator is optional
+        public PredictiveRelocatorPluggin Relocator;
+
+        public ElevatorAI(Building building, ElevatorCollection elevators, SimulationConfiguration config)
         {
             this.Building = building;
             this.Elevators = elevators;
 
             this.HandledRequests = new List<Request>();
+
+            if (config.SmartRelocation)
+            {
+                this.Relocator = new PredictiveRelocatorPluggin(elevators, config);
+            }
+            else
+            {
+                this.Relocator = null;
+            }
+            
         }
 
         public abstract void HandleRequests();
@@ -34,20 +47,25 @@ namespace ElevatorSimulator.ElevatorAI
             this.HandledRequests.Remove(request);
         }
 
-        public abstract void NotifyDropOff(Request request);
+        public void NotifyDropOff(Elevator.Elevator elevator, Request request)
+        {
+            if (elevator.IsIdle)
+            {
+                this.Relocator?.RelocateIdleElevator(elevator);
+            }
+        }
     }
 
     class ElevatorAIFactory
     {
-        public static ElevatorAI CreateElevatorAI(string AIType, Building building, ElevatorCollection elevators)
+        public static ElevatorAI CreateElevatorAI(Building building, ElevatorCollection elevators, SimulationConfiguration config)
         {
-            switch (AIType)
+            switch (config.AIType)
             {
                 case "BENCHMARK":
-                    return new BenchmarkAI(building, elevators);
+                    return new BenchmarkAI(building, elevators, config);
                 default:
-                    throw new UnknownAIException("The Elevator AI: " + AIType + " is unknown.");
-
+                    throw new UnknownAIException("The Elevator AI: " + config.AIType + " is unknown.");
             }
         }
     }
@@ -58,6 +76,6 @@ namespace ElevatorSimulator.ElevatorAI
 
         void NotifyPickUp(Request request);
 
-        void NotifyDropOff(Request request);
+        void NotifyDropOff(Elevator.Elevator elevator, Request request);
     }
 }

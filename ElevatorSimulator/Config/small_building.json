@@ -5,7 +5,7 @@
   "EnergyPerTick": 1,
   "AIType": "BENCHMARK",
   "RequestGeneratorType": "UNIFORM",
-  "BuildingFloors": 1,
+  "BuildingFloors": 10,
   "ElevatorSpeed": 1,
   "LoadingTime": 5,
   "ResidentsPerFloor": [

@@ -41,12 +41,21 @@ namespace ElevatorSimulator.Elevator
             private set;
         }
 
-        // True if the elevator is currently loading
+        // True if the elevator is moving
         public bool IsMoving
         {
             get
             {
                 return this.LoadingTimeRemaining == 0 && this.Waypoints.Count() > 0;
+            }
+        }
+
+        // True if the elevator is not loading or unloading anyone and is not going anywhere
+        public bool IsIdle
+        {
+            get
+            {
+                return this.Waypoints.Count() == 0;
             }
         }
 

@@ -56,4 +56,11 @@ namespace ElevatorSimulator
         }
     }
 
+    class InvalidRelocationException : CustomException
+    {
+        public InvalidRelocationException(string message) : base(message)
+        {
+        }
+    }
+
 }

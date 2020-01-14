@@ -46,6 +46,11 @@ namespace ElevatorSimulator.Elevator
             return totalEnergyUsed;
         }
 
+        public List<Elevator> GetIdleElevators()
+        {
+            return this.Elevators.FindAll(elevator => elevator.IsIdle);
+        }
+
         public IEnumerator<Elevator> GetEnumerator()
         {
             return this.Elevators.GetEnumerator();
@@ -54,6 +59,14 @@ namespace ElevatorSimulator.Elevator
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public static Elevator GetClosestElevator(List<Elevator> elevatorList, uint floor)
+        {
+            var distanceElevatorToRequest = elevatorList.Select(elevator => Math.Abs((int) elevator.CurrentFloor - (int) floor)).ToList();
+            int closestElevatorIndex = distanceElevatorToRequest.IndexOf(distanceElevatorToRequest.Min());
+
+            return elevatorList[closestElevatorIndex];
         }
     }
 }

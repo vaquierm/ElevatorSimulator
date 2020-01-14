@@ -9,7 +9,7 @@ namespace ElevatorSimulator.ElevatorAI
 {
     class BenchmarkAI : ElevatorAI
     {
-        public BenchmarkAI(Building building, ElevatorCollection elevators) : base(building, elevators)
+        public BenchmarkAI(Building building, ElevatorCollection elevators, SimulationConfiguration config) : base(building, elevators, config)
         {
             
         }
@@ -28,7 +28,7 @@ namespace ElevatorSimulator.ElevatorAI
                     continue;
                 }
 
-                var availibleElevators = this.Elevators.Where(elevator => elevator.Waypoints.Count() == 0).ToList();
+                var availibleElevators = this.Elevators.Where(elevator => elevator.IsIdle || elevator.IsRelocating).ToList();
 
                 if (availibleElevators.Count() == 0)
                 {
@@ -36,20 +36,20 @@ namespace ElevatorSimulator.ElevatorAI
                     break;
                 }
 
-                var distanceElevatorToRequest = availibleElevators.Select(elevator => Math.Abs((int) elevator.CurrentFloor - (int) request.Source)).ToList();
-                int closestElevatorIndex = distanceElevatorToRequest.IndexOf(distanceElevatorToRequest.Min());
-
                 // Add the waypoints to the elevator
-                availibleElevators[closestElevatorIndex].Waypoints.Add(new ElevatorWaypoint(request.Source, WaypointType.PICK_UP));
+                var closestElevator = ElevatorCollection.GetClosestElevator(availibleElevators, request.Source);
+
+                // If the elevator was relocating, interrupt the relocation
+                if (closestElevator.IsRelocating)
+                {
+                    closestElevator.CancelRelocation();
+                }
+
+                closestElevator.Waypoints.Add(new ElevatorWaypoint(request.Source, WaypointType.PICK_UP));
 
                 // Mark the request as handled
                 this.HandledRequests.Add(request);
             }
-        }
-
-        public override void NotifyDropOff(Request request)
-        {
-            // The benchmark AI does nothing with this information
         }
     }
 }
