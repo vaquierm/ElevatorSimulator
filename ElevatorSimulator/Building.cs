@@ -82,7 +82,7 @@ namespace ElevatorSimulator
                 }
 
                 // Get all requests that can be picked up by this elevator
-                var requestsAtElevator = this.PendingRequests.FindAll(request => request.Source == elevator.CurrentFloor);
+                var requestsAtElevator = this.PendingRequests.FindAll(request => request.Source == elevator.CurrentFloor && elevator.OnTheWayRequests.Contains(request));
 
                 if (requestsAtElevator.Count() > 0)
                 {
@@ -92,9 +92,16 @@ namespace ElevatorSimulator
                         // Add the requests to the list of requests that have been picked up by this elevator
                         this.PendingRequests.Remove(pickedUpRequest);
                         elevator.PickedUpRequests.Add(pickedUpRequest);
+                        // Remove the request from the elevator
+                        elevator.OnTheWayRequests.Remove(pickedUpRequest);
+
+                        if (elevator.IsRelocating)
+                        {
+                            elevator.CancelRelocation();
+                        }
 
                         // Add the destination waypoint to the elevator once it picks up the person
-                        elevator.Waypoints.Add(new ElevatorWaypoint(pickedUpRequest.Destination, WaypointType.DROP_OFF));
+                        elevator.AddWaypoint(new ElevatorWaypoint(pickedUpRequest.Destination, WaypointType.DROP_OFF));
 
                         // Notify the AI that the request has been picked up
                         this.ElevatorAI.NotifyPickUp(pickedUpRequest);

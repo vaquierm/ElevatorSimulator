@@ -28,8 +28,28 @@ namespace ElevatorSimulator.Elevator
         // The list of requests that are currently being serviced by this elevator
         public readonly List<Request> PickedUpRequests;
 
+        // The list of requests that the elevator is on the way to pick up
+        public readonly List<Request> OnTheWayRequests;
+
         // Waypoints that the elevator has to go to
         public readonly List<ElevatorWaypoint> Waypoints;
+
+        public List<ElevatorWaypoint> PredictiveWaypoints
+        {
+            get
+            {
+                var predictiveWaypoint = new List<ElevatorWaypoint>(this.Waypoints);
+
+                var pickups = predictiveWaypoint.FindAll(wp => wp.WaypointType == WaypointType.PICK_UP);
+
+                foreach (var wp in pickups)
+                {
+                    _addWaypoint(new ElevatorWaypoint(wp.AssociatedNext, WaypointType.DROP_OFF), predictiveWaypoint);
+                }
+
+                return predictiveWaypoint;
+            }
+        }
 
         // Loading time the elevator stops for when picking up or dropping off someone
         public readonly uint LoadingTime;
@@ -68,6 +88,30 @@ namespace ElevatorSimulator.Elevator
             }
         }
 
+        public Direction Direction
+        {
+            get
+            {
+                if (this.IsIdle)
+                {
+                    return Direction.NONE;
+                }
+
+                var nextWaypoint = this.Waypoints.First();
+
+                if (nextWaypoint.DestinationFloor > this.CurrentFloor)
+                {
+                    return Direction.UP;
+                }
+                else if (nextWaypoint.DestinationFloor < this.CurrentFloor)
+                {
+                    return Direction.DOWN;
+                }
+
+                return Direction.NONE;
+            }
+        }
+
         public Elevator(SimulationConfiguration config)
         {
             this.Speed = config.ElevatorSpeed;
@@ -79,6 +123,88 @@ namespace ElevatorSimulator.Elevator
 
             this.Waypoints = new List<ElevatorWaypoint>();
             this.PickedUpRequests = new List<Request>();
+            this.OnTheWayRequests = new List<Request>();
+        }
+
+        /// <summary>
+        /// Add a new waypoint to the list of waypoint
+        /// </summary>
+        /// <param name="newWaypoint">The new waypoint to be added</param>
+        public void AddWaypoint(ElevatorWaypoint newWaypoint)
+        {
+            _addWaypoint(newWaypoint, this.Waypoints);
+        }
+
+        private void _addWaypoint(ElevatorWaypoint newWaypoint, List<ElevatorWaypoint> waypoints)
+        {
+            if (this.IsRelocating)
+            {
+                this.CancelRelocation();
+            }
+
+            if (waypoints.Count() == 0 || newWaypoint.DestinationFloor == this.CurrentFloor && newWaypoint.WaypointType != WaypointType.PICK_UP)
+            {
+                waypoints.Insert(0, newWaypoint);
+                return;
+            }
+
+            bool goesDown = ((int)newWaypoint.DestinationFloor - (int)this.CurrentFloor) < 0;
+
+            if (goesDown)
+            {
+                uint last = this.CurrentFloor;
+                // Make sure that all other waypoints go down
+                for (int i = 0; i < waypoints.Count(); i++)
+                {
+                    if (last < waypoints[i].DestinationFloor)
+                    {
+                        throw new InvalidElevatorStateException("The Waypoints list is no longer in order");
+                    }
+
+                    if (last >= newWaypoint.DestinationFloor && waypoints[i].DestinationFloor < newWaypoint.DestinationFloor)
+                    {
+                        waypoints.Insert(i, newWaypoint);
+                        return;
+                    }
+
+                    last = waypoints[i].DestinationFloor;
+                }
+
+                waypoints.Add(newWaypoint);
+                return;
+            }
+
+
+            bool goesUp = ((int)newWaypoint.DestinationFloor - (int)this.CurrentFloor) > 0;
+
+            if (goesUp)
+            {
+                uint last = this.CurrentFloor;
+                // Make sure that all other waypoints go down
+                for (int i = 0; i < waypoints.Count(); i++)
+                {
+                    if (last > waypoints[i].DestinationFloor)
+                    {
+                        throw new InvalidElevatorStateException("The Waypoints list is no longer in order");
+                    }
+
+                    if (last <= newWaypoint.DestinationFloor && waypoints[i].DestinationFloor > newWaypoint.DestinationFloor)
+                    {
+                        waypoints.Insert(i, newWaypoint);
+                        return;
+                    }
+
+                    last = waypoints[i].DestinationFloor;
+                }
+
+                waypoints.Add(newWaypoint);
+                return;
+            }
+
+            if (!goesDown || !goesUp)
+            {
+                throw new InvalidElevatorStateException("The request was not added properly");
+            }
         }
 
         /// <summary>
@@ -159,6 +285,19 @@ namespace ElevatorSimulator.Elevator
             {
                 throw new InvalidElevatorStateException("Cannot cancel the relocation of the elevator if the elevator is not relocating");
             }
+        }
+
+        public Direction NextDirection(ElevatorWaypoint nextWaypoint)
+        {
+            if (this.CurrentFloor > nextWaypoint.DestinationFloor)
+            {
+                return Direction.DOWN;
+            }
+            else if (this.CurrentFloor < nextWaypoint.DestinationFloor)
+            {
+                return Direction.UP;
+            }
+            return Direction.NONE;
         }
 
     }

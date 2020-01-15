@@ -24,6 +24,21 @@ namespace ElevatorSimulator.Elevator
                 return this.Elevators.Sum(elevator => elevator.PickedUpRequests.Count());
             }
         }
+
+        public List<Request> OnTheWayRequests
+        {
+            get
+            {
+                List<Request> onTheWayRequests = new List<Request>();
+
+                foreach (Elevator elevator in this.Elevators)
+                {
+                    onTheWayRequests.AddRange(elevator.OnTheWayRequests);
+                }
+
+                return onTheWayRequests;
+            }
+        }
         
         public ElevatorCollection(SimulationConfiguration config)
         {

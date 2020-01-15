@@ -70,4 +70,10 @@ namespace ElevatorSimulator
         }
     }
 
+    class InvalidRequestStateException : CustomException
+    {
+        public InvalidRequestStateException(string message) : base(message)
+        {
+        }
+    }
 }

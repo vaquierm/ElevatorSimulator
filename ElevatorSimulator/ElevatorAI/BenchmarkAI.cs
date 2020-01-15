@@ -22,13 +22,13 @@ namespace ElevatorSimulator.ElevatorAI
             // Match the closest elevator that is availible to the requests
             foreach (var request in this.Building.PendingRequests)
             {
-                if (this.HandledRequests.Contains(request))
+                if (this.Elevators.OnTheWayRequests.Contains(request))
                 {
                     // If the request has already been handled, continue
                     continue;
                 }
 
-                var availibleElevators = this.Elevators.Where(elevator => elevator.IsIdle || elevator.IsRelocating).ToList();
+                var availibleElevators = this.Elevators.Elevators.FindAll(elevator => (elevator.IsIdle || elevator.IsRelocating)).ToList();
 
                 if (availibleElevators.Count() == 0)
                 {
@@ -45,10 +45,8 @@ namespace ElevatorSimulator.ElevatorAI
                     closestElevator.CancelRelocation();
                 }
 
-                closestElevator.Waypoints.Add(new ElevatorWaypoint(request.Source, WaypointType.PICK_UP));
-
-                // Mark the request as handled
-                this.HandledRequests.Add(request);
+                closestElevator.AddWaypoint(new ElevatorWaypoint(request.Source, WaypointType.PICK_UP, request.Destination));
+                closestElevator.OnTheWayRequests.Add(request);
             }
         }
     }
