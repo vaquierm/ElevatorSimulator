@@ -101,6 +101,8 @@ namespace ElevatorSimulator.RequestGenerator
             switch (config.RequestGeneratorType)
             {
                 case "UNIFORM":
+                    return new RequestGenerator(building, config);
+                case "DAY_CYCLES":
                     return new DayCyclesRequestGenerator(building, config);
                 default:
                     throw new UnknownRequestGeneratorException("The request generator type: " + config.RequestGeneratorType + " is unknown.");
