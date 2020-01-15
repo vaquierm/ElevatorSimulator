@@ -63,4 +63,11 @@ namespace ElevatorSimulator
         }
     }
 
+    class InvalidDayCycleRequestGeneraotrState : CustomException
+    {
+        public InvalidDayCycleRequestGeneraotrState(string message) : base(message)
+        {
+        }
+    }
+
 }

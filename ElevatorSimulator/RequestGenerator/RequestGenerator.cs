@@ -11,6 +11,9 @@ namespace ElevatorSimulator.RequestGenerator
         // The base probability of a request being made from or to a floor at any point in time
         public readonly double[] RequestProbabilityPerFloor;
 
+        // The base probability of a request having a destination at a certain floor
+        public readonly double[] DestinationProbabilityPerFloor;
+
         // The building the request generator is associated to
         public readonly Building Building;
 
@@ -37,13 +40,15 @@ namespace ElevatorSimulator.RequestGenerator
                 this.RequestProbabilityPerFloor[i] = this.RequestProbabilityPerFloor[i] * weightAdjustment;
             }
 
+            this.DestinationProbabilityPerFloor = (double[]) this.RequestProbabilityPerFloor.Clone();
+
         }
 
         /// <summary>
         /// Generate elevator requests for each floor
         /// </summary>
         /// <returns> List of requests based on the probabilities of requests happening at each floor</returns>
-        public List<Request> GenerateRequests()
+        public virtual List<Request> GenerateRequests()
         {
             var requests = new List<Request>();
 
@@ -75,7 +80,7 @@ namespace ElevatorSimulator.RequestGenerator
             {
                 if (i != sourceFloor)
                 {
-                    score[i] = this.RequestProbabilityPerFloor[i] * rand.NextDouble();
+                    score[i] = this.DestinationProbabilityPerFloor[i] * rand.NextDouble();
                 }
                 else
                 {
@@ -97,6 +102,8 @@ namespace ElevatorSimulator.RequestGenerator
             {
                 case "UNIFORM":
                     return new RequestGenerator(building, config);
+                case "DAY_CYCLES":
+                    return new DayCyclesRequestGenerator(building, config);
                 default:
                     throw new UnknownRequestGeneratorException("The request generator type: " + config.RequestGeneratorType + " is unknown.");
             }
