@@ -57,6 +57,7 @@
     <Compile Include="MetricsReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request.cs" />
+    <Compile Include="RequestGenerator\DayCyclesRequestGenerator.cs" />
     <Compile Include="RequestGenerator\RequestGenerator.cs" />
     <Compile Include="Simulation.cs" />
   </ItemGroup>

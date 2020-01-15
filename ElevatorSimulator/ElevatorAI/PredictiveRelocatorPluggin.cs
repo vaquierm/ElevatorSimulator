@@ -35,7 +35,8 @@ namespace ElevatorSimulator.ElevatorAI
 
             this.RequestsDistribution = new uint[config.BuildingFloors];
 
-            this.N = (config.TotalResidents * config.AverageRequestsPerResidentPerDay) / 12;
+            // Keep track of a rolling average of the past half an hour
+            this.N = (config.TotalResidents * config.AverageRequestsPerResidentPerDay) / 48;
 
             this.RequestQueue = new Queue<Request>();
         }
