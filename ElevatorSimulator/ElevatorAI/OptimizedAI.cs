@@ -7,13 +7,13 @@ using ElevatorSimulator.Elevator;
 
 namespace ElevatorSimulator.ElevatorAI
 {
-    class RegularAI : ElevatorAI
+    class OptimizedAI : ElevatorAI
     {
         private uint SpeedPerTick;
 
         private uint LoadingTime;
 
-        public RegularAI(Building building, ElevatorCollection elevators, SimulationConfiguration config) : base(building, elevators, config)
+        public OptimizedAI(Building building, ElevatorCollection elevators, SimulationConfiguration config) : base(building, elevators, config)
         {
             this.SpeedPerTick = config.ElevatorSpeed;
             this.LoadingTime = config.ElevatorSpeed;

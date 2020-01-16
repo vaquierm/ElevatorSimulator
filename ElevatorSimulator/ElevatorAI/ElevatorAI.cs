@@ -57,7 +57,9 @@ namespace ElevatorSimulator.ElevatorAI
             switch (config.AIType)
             {
                 case "BENCHMARK":
-                    return new RegularAI(building, elevators, config);
+                    return new BenchmarkAI(building, elevators, config);
+                case "OPTIMIZED":
+                    return new OptimizedAI(building, elevators, config);
                 default:
                     throw new UnknownAIException("The Elevator AI: " + config.AIType + " is unknown.");
             }

@@ -82,7 +82,7 @@ namespace ElevatorSimulator
                 }
 
                 // Get all requests that can be picked up by this elevator
-                var requestsAtElevator = this.PendingRequests.FindAll(request => request.Source == elevator.CurrentFloor && elevator.Direction == request.Direction && elevator.OnTheWayRequests.Contains(request));
+                var requestsAtElevator = this.PendingRequests.FindAll(request => request.Source == elevator.CurrentFloor && (elevator.Direction == Direction.NONE || elevator.Direction == request.Direction) && elevator.OnTheWayRequests.Contains(request));
 
                 if (requestsAtElevator.Count() > 0)
                 {
