@@ -42,6 +42,8 @@ namespace ElevatorSimulator.Elevator
 
                 var pickups = predictiveWaypoint.FindAll(wp => wp.WaypointType == WaypointType.PICK_UP);
 
+                var currentFloor = this.CurrentFloor;
+
                 foreach (var wp in pickups)
                 {
                     _addWaypoint(new ElevatorWaypoint(wp.AssociatedNext, WaypointType.DROP_OFF), predictiveWaypoint);
@@ -97,7 +99,14 @@ namespace ElevatorSimulator.Elevator
                     return Direction.NONE;
                 }
 
-                var nextWaypoint = this.Waypoints.First();
+                var nextWaypoints = this.Waypoints.FindAll(wp => wp.DestinationFloor != this.CurrentFloor);
+
+                if (nextWaypoints.Count() == 0)
+                {
+                    return Direction.NONE;
+                }
+
+                var nextWaypoint = nextWaypoints.First();
 
                 if (nextWaypoint.DestinationFloor > this.CurrentFloor)
                 {
@@ -148,9 +157,7 @@ namespace ElevatorSimulator.Elevator
                 return;
             }
 
-            bool goesDown = ((int)newWaypoint.DestinationFloor - (int)this.CurrentFloor) < 0;
-
-            if (goesDown)
+            if (newWaypoint.DestinationFloor < this.CurrentFloor)
             {
                 uint last = this.CurrentFloor;
                 // Make sure that all other waypoints go down
@@ -174,10 +181,7 @@ namespace ElevatorSimulator.Elevator
                 return;
             }
 
-
-            bool goesUp = ((int)newWaypoint.DestinationFloor - (int)this.CurrentFloor) > 0;
-
-            if (goesUp)
+            if (newWaypoint.DestinationFloor > this.CurrentFloor)
             {
                 uint last = this.CurrentFloor;
                 // Make sure that all other waypoints go down
@@ -201,9 +205,13 @@ namespace ElevatorSimulator.Elevator
                 return;
             }
 
-            if (!goesDown || !goesUp)
+            if (this.NextDirection(new ElevatorWaypoint(newWaypoint.AssociatedNext, WaypointType.DROP_OFF)) == this.Direction)
             {
-                throw new InvalidElevatorStateException("The request was not added properly");
+                waypoints.Insert(0, newWaypoint);
+            }
+            else
+            {
+                throw new InvalidElevatorStateException("Something went wrong while adding a waypoint");
             }
         }
 
@@ -298,6 +306,35 @@ namespace ElevatorSimulator.Elevator
                 return Direction.UP;
             }
             return Direction.NONE;
+        }
+
+        public int Bound()
+        {
+            int bound = -1;
+            if (this.Direction == Direction.UP)
+            {
+                bound = (int) this.TopFloor;
+                foreach (var request in this.OnTheWayRequests)
+                {
+                    if (request.Direction == Direction.DOWN && request.Source < bound)
+                    {
+                        bound = (int) request.Source;
+                    }
+                }
+            }
+            else if (this.Direction == Direction.DOWN)
+            {
+                bound = (int)this.TopFloor;
+                foreach (var request in this.OnTheWayRequests)
+                {
+                    if (request.Direction == Direction.UP && request.Source < bound)
+                    {
+                        bound = (int) request.Source;
+                    }
+                }
+            }
+
+            return bound;
         }
 
     }

@@ -30,7 +30,7 @@ namespace ElevatorSimulator.ElevatorAI
 
             foreach (var request in notHandledRequests)
             {
-
+                TryAssignRequest(request);
             }
         }
 
@@ -49,61 +49,85 @@ namespace ElevatorSimulator.ElevatorAI
                     continue;
                 }
 
-                
+                timePenalty[i] = this.TimePenalty(request, elevator);
+            }
 
+            // Get the elevator that has the minimum penalty
+            var minPenaltyElevators = timePenalty.ToList().FindAll(p => p[1] >= 0 && p[0] == timePenalty.Min(pe => pe[0]));
 
-                
+            if (minPenaltyElevators.Count() > 0)
+            {
 
-                
+                var elevatorToAssign = this.Elevators.Elevators[timePenalty.ToList().IndexOf(minPenaltyElevators.First())];
+
+                elevatorToAssign.AddWaypoint(new ElevatorWaypoint(request.Source, WaypointType.PICK_UP, request.Destination));
+                elevatorToAssign.OnTheWayRequests.Add(request);
             }
 
         }
 
         private int[] TimePenalty(Request request, Elevator.Elevator elevator)
         {
-            int numberPeopleInElevator = elevator.PickedUpRequests.Count();
-            int numberOfWaitingPeople = elevator.Waypoints.Count(w => w.WaypointType == WaypointType.PICK_UP);
-            var nextWaypoint = elevator.Waypoints.First();
-
-            int penalty = 0;
-            bool onWay = false;
-
-            // Check if the request in fully on the way
-            if (request.Direction == Direction.UP && elevator.CurrentFloor <= request.Source && request.Destination <= nextWaypoint.DestinationFloor)
+            var bound = elevator.Bound();
+            if (bound >= 0)
             {
-                onWay = true;
-            }
-            else if (request.Direction == Direction.DOWN && elevator.CurrentFloor >= request.Source && request.Destination >= nextWaypoint.DestinationFloor) {
-                onWay = true;
-            }
-
-            // If the request is fully on the way, calculate the penalty that that creates
-            if (onWay) {
-                if (elevator.CurrentFloor == request.Source)
+                if (request.Direction == elevator.Direction)
                 {
-                    penalty += (int) (this.LoadingTime - elevator.LoadingTimeRemaining);
+                    if ((request.Direction == Direction.DOWN && elevator.CurrentFloor >= request.Source && bound < request.Destination) || (request.Direction == Direction.UP && elevator.CurrentFloor <= request.Source && bound > request.Destination))
+                    {
+                        return new int[] { (int)elevator.LoadingTimeRemaining + (int)Math.Ceiling(Math.Abs((double)((int)elevator.CurrentFloor - request.Source)) / this.SpeedPerTick), 0 };
+                    }
+                    else
+                    {
+                        return new int[] { int.MaxValue, -1 };
+                    }
                 }
                 else
                 {
-                    penalty += (int) this.LoadingTime;
+                    return new int[] { int.MaxValue, -1 };
                 }
-
-                if (request.Destination != nextWaypoint.DestinationFloor)
-                {
-                    penalty += (int)this.LoadingTime;
-                }
-
-                // The penalty applies for everyone waiting
-                penalty *= (numberOfWaitingPeople + numberPeopleInElevator);
-
-                // Add the waiting time of the person making the request
-                penalty += (int) Math.Ceiling(Math.Abs((double)((int)elevator.CurrentFloor - (int)request.Source)) / this.SpeedPerTick);
-
-                return new int[] { penalty, 0 };
             }
 
-            return new int[]{ };
+            var waypoints = elevator.PredictiveWaypoints;
 
+            var waiting = new List<Request>(elevator.OnTheWayRequests);
+            var pickedUp = new List<Request>(elevator.PickedUpRequests);
+
+            int penalty = 0;
+            int waitTime = 0;
+
+            int index = -1;
+            int temp = (int) elevator.CurrentFloor;
+            for (int i = 0; i < waypoints.Count(); i++)
+            {
+                if (request.Direction != elevator.Direction || (i < 0 && request.Source < temp && request.Source < waypoints[i].DestinationFloor) || (i < 0 && request.Source > temp && request.Source > waypoints[i].DestinationFloor))
+                {
+                    waitTime += (int)Math.Ceiling(Math.Abs((double)(temp - waypoints[i].DestinationFloor)) / this.SpeedPerTick);
+
+                    if (temp != waypoints[i].DestinationFloor)
+                    {
+                        waitTime += (int) this.LoadingTime;
+                    }
+                }
+
+                // Simulate the unloading of the elevator
+                pickedUp.AddRange(waiting.FindAll(r => r.Source == waypoints[i].DestinationFloor));
+
+                if (request.Direction == elevator.Direction && ((request.Source <= temp && request.Source > waypoints[i].DestinationFloor) || (request.Source >= temp && request.Source < waypoints[i].DestinationFloor)))
+                {
+                    // If the request should get a waypoint at index i
+                    index = i;
+                    penalty += (waiting.Count() + pickedUp.Count()) * (int) this.LoadingTime;
+                }
+
+                if (request.Direction == elevator.Direction && ((request.Destination <= temp && request.Destination > waypoints[i].DestinationFloor) || (request.Source >= temp && request.Source < waypoints[i].DestinationFloor)))
+                {
+                    // If we would drop off the request here
+                    penalty += (waiting.Count() + pickedUp.Count()) * (int)this.LoadingTime;
+                }
+            }
+
+            return new int[] { penalty + waitTime, index };
         }
     }
 }
