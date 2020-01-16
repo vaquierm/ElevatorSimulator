@@ -16,9 +16,6 @@ namespace ElevatorSimulator.ElevatorAI
         // The building that the elevators are in
         public Building Building;
 
-        // The requests that have elevators on their way for
-        public List<Request> HandledRequests;
-
         // The Smart relocator is optional
         public PredictiveRelocatorPluggin Relocator;
 
@@ -26,8 +23,6 @@ namespace ElevatorSimulator.ElevatorAI
         {
             this.Building = building;
             this.Elevators = elevators;
-
-            this.HandledRequests = new List<Request>();
 
             if (config.SmartRelocation)
             {
@@ -44,7 +39,6 @@ namespace ElevatorSimulator.ElevatorAI
 
         public void NotifyPickUp(Request request)
         {
-            this.HandledRequests.Remove(request);
         }
 
         public void NotifyDropOff(Elevator.Elevator elevator, Request request)
@@ -64,6 +58,8 @@ namespace ElevatorSimulator.ElevatorAI
             {
                 case "BENCHMARK":
                     return new BenchmarkAI(building, elevators, config);
+                case "OPTIMIZED":
+                    return new OptimizedAI(building, elevators, config);
                 default:
                     throw new UnknownAIException("The Elevator AI: " + config.AIType + " is unknown.");
             }

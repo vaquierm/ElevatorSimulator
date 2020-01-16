@@ -49,6 +49,7 @@
     <Compile Include="ElevatorAI\BenchmarkAI.cs" />
     <Compile Include="ElevatorAI\ElevatorAI.cs" />
     <Compile Include="ElevatorAI\PredictiveRelocatorPluggin.cs" />
+    <Compile Include="ElevatorAI\OptimizedAI.cs" />
     <Compile Include="ElevatorSimulation.cs" />
     <Compile Include="Elevator\Elevator.cs" />
     <Compile Include="Elevator\ElevatorCollection.cs" />

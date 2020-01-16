@@ -83,7 +83,10 @@ namespace ElevatorSimulator.ElevatorAI
 
             var bestPos = BestPosition(otherElevatorPositions);
 
-            elevator.Waypoints.Add(new ElevatorWaypoint(bestPos, WaypointType.RELOCATION));
+            if (bestPos != elevator.CurrentFloor)
+            {
+                elevator.AddWaypoint(new ElevatorWaypoint(bestPos, WaypointType.RELOCATION));
+            }
             
         }
 
