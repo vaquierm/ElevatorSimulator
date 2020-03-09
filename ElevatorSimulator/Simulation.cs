@@ -194,7 +194,7 @@ namespace ElevatorSimulator
             builder.Append("Elevator speed: " + this.ElevatorSpeed + "\n");
 
             builder.Append("Loading time: " + this.LoadingTime + "\n");
-            builder.Append("Average requests per person per day" + this.AverageRequestsPerResidentPerDay + "\n");
+            builder.Append("Average requests per person per day: " + this.AverageRequestsPerResidentPerDay + "\n");
 
             builder.Append("Residents per floor: [" + string.Join(", ", this.ResidentsPerFloor) + "]\n");
             builder.Append("Interest per floor: [" + string.Join(", ", this.InterestPerFloorNonNormalized) + "]\n");

@@ -205,7 +205,7 @@ namespace ElevatorSimulator.Elevator
                 return;
             }
 
-            if (this.NextDirection(new ElevatorWaypoint(newWaypoint.AssociatedNext, WaypointType.DROP_OFF)) == this.Direction)
+            if (this.NextDirection(new ElevatorWaypoint(newWaypoint.AssociatedNext, WaypointType.DROP_OFF)) == this.Direction || this.Direction == Direction.NONE)
             {
                 waypoints.Insert(0, newWaypoint);
             }

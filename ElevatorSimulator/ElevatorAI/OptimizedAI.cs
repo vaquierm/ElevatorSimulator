@@ -42,10 +42,11 @@ namespace ElevatorSimulator.ElevatorAI
             {
                 var elevator = this.Elevators.Elevators[i];
 
-                if (elevator.IsIdle || elevator.IsRelocating)
+                if (elevator.IsIdle || elevator.IsRelocating || (elevator.PickedUpRequests.Count() == 0 && elevator.OnTheWayRequests.Count() == 0))
                 {
                     // If the elevator is not in use or is relocating, it can go directly pick up someone
                     timePenalty[i] = new int[] { (int)Math.Ceiling(Math.Abs((double)((int)elevator.CurrentFloor - (int)request.Source)) / this.SpeedPerTick), 0 };
+                    timePenalty[i][0] += (int)elevator.LoadingTimeRemaining;
                     continue;
                 }
 
@@ -73,66 +74,66 @@ namespace ElevatorSimulator.ElevatorAI
 
         private int[] TimePenalty(Request request, Elevator.Elevator elevator)
         {
-            var bound = elevator.Bound();
-            if (bound >= 0)
+            int[] penalty = { int.MaxValue, -1 };
+            if (elevator.Direction == request.Direction && elevator.Direction == Direction.DOWN && request.Source < elevator.CurrentFloor && !elevator.OnTheWayRequests.Exists(r => r.Direction == Direction.UP && r.Source > request.Destination))
             {
-                if (request.Direction == elevator.Direction)
-                {
-                    if ((request.Direction == Direction.DOWN && elevator.CurrentFloor >= request.Source && bound < request.Destination) || (request.Direction == Direction.UP && elevator.CurrentFloor <= request.Source && bound > request.Destination))
-                    {
-                        return new int[] { (int)elevator.LoadingTimeRemaining + (int)Math.Ceiling(Math.Abs((double)((int)elevator.CurrentFloor - request.Source)) / this.SpeedPerTick), 0 };
-                    }
-                    else
-                    {
-                        return new int[] { int.MaxValue, -1 };
-                    }
-                }
-                else
-                {
-                    return new int[] { int.MaxValue, -1 };
-                }
+                // The elevator is going down in the same direction as our request
+                // If it is picking up a request to go up, it is below our destination
+                penalty[1] = 0;
+
+                // Time for elevator to get to the request
+                penalty[0] = (int)Math.Ceiling(Math.Abs((double)((int)elevator.CurrentFloor - (int)request.Source)) / this.SpeedPerTick);
+                // Time wasted for other people already travelling in the elevator
+                penalty[0] += (int)elevator.LoadingTimeRemaining +
+                    (elevator.OnTheWayRequests.FindAll(r => r.Source != request.Source && r.Destination != request.Source).Count()
+                    + elevator.OnTheWayRequests.FindAll(r => r.Source != request.Destination && r.Destination != request.Destination).Count()
+                    + elevator.PickedUpRequests.FindAll(r => r.Source != request.Source && r.Destination != request.Source).Count()
+                    + elevator.PickedUpRequests.FindAll(r => r.Source != request.Destination && r.Destination != request.Destination).Count()
+                    ) * (int)this.LoadingTime;
+            }
+            else if (elevator.Direction == request.Direction && elevator.Direction == Direction.UP && request.Source > elevator.CurrentFloor && !elevator.OnTheWayRequests.Exists(r => r.Direction == Direction.DOWN && r.Source < request.Destination))
+            {
+                // The elevator is travelling up in the same direction as the request
+                // If it is going to pick up someone that wants to go down, it is above the request destination
+                penalty[1] = 0;
+
+                // Time for elevator to get to the request
+                penalty[0] = (int)Math.Ceiling(Math.Abs((double)((int)elevator.CurrentFloor - (int)request.Source)) / this.SpeedPerTick);
+                // Time wasted for other people already travelling in the elevator
+                penalty[0] += (int)elevator.LoadingTimeRemaining +
+                                    (elevator.OnTheWayRequests.FindAll(r => r.Source != request.Source && r.Destination != request.Source).Count()
+                                    + elevator.OnTheWayRequests.FindAll(r => r.Source != request.Destination && r.Destination != request.Destination).Count()
+                                    + elevator.PickedUpRequests.FindAll(r => r.Source != request.Source && r.Destination != request.Source).Count()
+                                    + elevator.PickedUpRequests.FindAll(r => r.Source != request.Destination && r.Destination != request.Destination).Count()
+                                    ) * (int)this.LoadingTime;
             }
 
-            var waypoints = elevator.PredictiveWaypoints;
-
-            var waiting = new List<Request>(elevator.OnTheWayRequests);
-            var pickedUp = new List<Request>(elevator.PickedUpRequests);
-
-            int penalty = 0;
-            int waitTime = 0;
-
-            int index = -1;
-            int temp = (int) elevator.CurrentFloor;
-            for (int i = 0; i < waypoints.Count(); i++)
+            // Now concider the penalty if we pick up this request later after fufilling all requests
+            var distinctFloors = new HashSet<int>();
+            distinctFloors.Add((int)elevator.CurrentFloor);
+            foreach (var r in elevator.OnTheWayRequests)
             {
-                if (request.Direction != elevator.Direction || (i < 0 && request.Source < temp && request.Source < waypoints[i].DestinationFloor) || (i < 0 && request.Source > temp && request.Source > waypoints[i].DestinationFloor))
-                {
-                    waitTime += (int)Math.Ceiling(Math.Abs((double)(temp - waypoints[i].DestinationFloor)) / this.SpeedPerTick);
+                distinctFloors.Add((int)r.Source);
+                distinctFloors.Add((int)r.Destination);
+            }
+            foreach (var r in elevator.PickedUpRequests)
+            {
+                distinctFloors.Add((int)r.Destination);
+            }
+            int penaltyNoPickup = (int)elevator.LoadingTimeRemaining + (int)Math.Ceiling((double)(distinctFloors.Max() - distinctFloors.Min()) / this.SpeedPerTick) + distinctFloors.Count() * (int)this.LoadingTime;
 
-                    if (temp != waypoints[i].DestinationFloor)
-                    {
-                        waitTime += (int) this.LoadingTime;
-                    }
-                }
+            var direction = (elevator.OnTheWayRequests.Count() == 0) ? elevator.Direction : elevator.OnTheWayRequests.First().Direction;
+            var endPoint = (direction == Direction.DOWN) ? distinctFloors.Min() : distinctFloors.Max();
 
-                // Simulate the unloading of the elevator
-                pickedUp.AddRange(waiting.FindAll(r => r.Source == waypoints[i].DestinationFloor));
+            penaltyNoPickup += (int)Math.Ceiling(Math.Abs((double)(endPoint - (int)request.Source) / this.SpeedPerTick));
 
-                if (request.Direction == elevator.Direction && ((request.Source <= temp && request.Source > waypoints[i].DestinationFloor) || (request.Source >= temp && request.Source < waypoints[i].DestinationFloor)))
-                {
-                    // If the request should get a waypoint at index i
-                    index = i;
-                    penalty += (waiting.Count() + pickedUp.Count()) * (int) this.LoadingTime;
-                }
-
-                if (request.Direction == elevator.Direction && ((request.Destination <= temp && request.Destination > waypoints[i].DestinationFloor) || (request.Source >= temp && request.Source < waypoints[i].DestinationFloor)))
-                {
-                    // If we would drop off the request here
-                    penalty += (waiting.Count() + pickedUp.Count()) * (int)this.LoadingTime;
-                }
+            if (penaltyNoPickup < penalty[0])
+            {
+                penalty[0] = penaltyNoPickup; // Update the best penalty
+                penalty[1] = -1; // Indicate that it is batter not to use the elevator
             }
 
-            return new int[] { penalty + waitTime, index };
+            return penalty;
         }
     }
 }
