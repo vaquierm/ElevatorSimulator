@@ -205,7 +205,7 @@ namespace ElevatorSimulator.Elevator
                 return;
             }
 
-            if (this.NextDirection(new ElevatorWaypoint(newWaypoint.AssociatedNext, WaypointType.DROP_OFF)) == this.Direction)
+            if (this.NextDirection(new ElevatorWaypoint(newWaypoint.AssociatedNext, WaypointType.DROP_OFF)) == this.Direction || this.Direction == Direction.NONE)
             {
                 waypoints.Insert(0, newWaypoint);
             }
@@ -223,16 +223,6 @@ namespace ElevatorSimulator.Elevator
         {
             if (this.Waypoints.Count() == 0)
             {
-                return 0;
-            }
-
-            if (this.LoadingTimeRemaining > 0)
-            {
-                if (this.LoadingTimeRemaining > this.LoadingTime)
-                {
-                    throw new InvalidElevatorStateException("The elevator cannot have a loading time remaining higher than the max loading time. Max loading time: " + this.LoadingTime + ", Loading time remaining: " + this.LoadingTimeRemaining);
-                }
-                this.LoadingTimeRemaining--;
                 return 0;
             }
 
@@ -267,6 +257,16 @@ namespace ElevatorSimulator.Elevator
                     this.ResetLoadingTime();
                 }
                 return energySpent;
+            }
+
+            if (this.LoadingTimeRemaining > 0)
+            {
+                if (this.LoadingTimeRemaining > this.LoadingTime)
+                {
+                    throw new InvalidElevatorStateException("The elevator cannot have a loading time remaining higher than the max loading time. Max loading time: " + this.LoadingTime + ", Loading time remaining: " + this.LoadingTimeRemaining);
+                }
+                this.LoadingTimeRemaining--;
+                return 0;
             }
 
             return this.EnergyPerTick;

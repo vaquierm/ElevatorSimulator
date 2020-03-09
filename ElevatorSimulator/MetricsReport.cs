@@ -9,21 +9,21 @@ namespace ElevatorSimulator
     class MetricsReport
     {
         // Waiting time in ticks
-        public uint WaitingTime
+        public double WaitingTime
         {
             get;
             private set;
         }
 
         // The time spent in the elevator
-        public uint TravelTime
+        public double TravelTime
         {
             get;
             private set;
         }
 
         // The total time interacting with the elevator
-        public uint TotalTime
+        public double TotalTime
         {
             get
             {
@@ -32,13 +32,20 @@ namespace ElevatorSimulator
         }
 
         // Energy used by elevators
-        public uint EnergyUsed
+        public double EnergyUsed
         {
             get;
             private set;
         }
 
         public MetricsReport(uint waitingTime, uint travelTime, uint energyUsed)
+        {
+            this.WaitingTime = waitingTime;
+            this.TravelTime = travelTime;
+            this.EnergyUsed = energyUsed;
+        }
+
+        public MetricsReport(double waitingTime, double travelTime, double energyUsed)
         {
             this.WaitingTime = waitingTime;
             this.TravelTime = travelTime;
@@ -57,7 +64,7 @@ namespace ElevatorSimulator
 
         public override string ToString()
         {
-            return "Waiting Time: " + this.WaitingTime + " ticks, Travel Time: " + this.TravelTime + " ticks, Total Time: " + this.TotalTime + " ticks, Energy Used: " + this.EnergyUsed + " energy units";
+            return "Waiting Time: " + Math.Round(this.WaitingTime, 3) + " ticks, Travel Time: " + Math.Round(this.TravelTime, 3) + " ticks, Total Time: " + Math.Round(this.TotalTime, 3) + " ticks, Energy Used: " + Math.Round(this.EnergyUsed, 3) + " energy units";
         }
     }
 }
