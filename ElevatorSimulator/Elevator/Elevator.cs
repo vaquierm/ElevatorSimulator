@@ -226,16 +226,6 @@ namespace ElevatorSimulator.Elevator
                 return 0;
             }
 
-            if (this.LoadingTimeRemaining > 0)
-            {
-                if (this.LoadingTimeRemaining > this.LoadingTime)
-                {
-                    throw new InvalidElevatorStateException("The elevator cannot have a loading time remaining higher than the max loading time. Max loading time: " + this.LoadingTime + ", Loading time remaining: " + this.LoadingTimeRemaining);
-                }
-                this.LoadingTimeRemaining--;
-                return 0;
-            }
-
             var nextWaypoint = this.Waypoints.First();
 
             if (nextWaypoint.DestinationFloor > this.TopFloor || nextWaypoint.DestinationFloor < 0)
@@ -267,6 +257,16 @@ namespace ElevatorSimulator.Elevator
                     this.ResetLoadingTime();
                 }
                 return energySpent;
+            }
+
+            if (this.LoadingTimeRemaining > 0)
+            {
+                if (this.LoadingTimeRemaining > this.LoadingTime)
+                {
+                    throw new InvalidElevatorStateException("The elevator cannot have a loading time remaining higher than the max loading time. Max loading time: " + this.LoadingTime + ", Loading time remaining: " + this.LoadingTimeRemaining);
+                }
+                this.LoadingTimeRemaining--;
+                return 0;
             }
 
             return this.EnergyPerTick;

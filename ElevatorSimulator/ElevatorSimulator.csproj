@@ -54,6 +54,7 @@
     <Compile Include="Elevator\Elevator.cs" />
     <Compile Include="Elevator\ElevatorCollection.cs" />
     <Compile Include="Elevator\ElevatorWaypoint.cs" />
+    <Compile Include="ElevatorAI\RegularAI.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="MetricsReport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

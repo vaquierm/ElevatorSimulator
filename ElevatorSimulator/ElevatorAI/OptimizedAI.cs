@@ -16,7 +16,7 @@ namespace ElevatorSimulator.ElevatorAI
         public OptimizedAI(Building building, ElevatorCollection elevators, SimulationConfiguration config) : base(building, elevators, config)
         {
             this.SpeedPerTick = config.ElevatorSpeed;
-            this.LoadingTime = config.ElevatorSpeed;
+            this.LoadingTime = config.LoadingTime;
         }
 
 
@@ -59,6 +59,11 @@ namespace ElevatorSimulator.ElevatorAI
             {
 
                 var elevatorToAssign = this.Elevators.Elevators[timePenalty.ToList().IndexOf(minPenaltyElevators.First())];
+
+                if (elevatorToAssign.IsRelocating)
+                {
+                    elevatorToAssign.CancelRelocation();
+                }
 
                 elevatorToAssign.AddWaypoint(new ElevatorWaypoint(request.Source, WaypointType.PICK_UP, request.Destination));
                 elevatorToAssign.OnTheWayRequests.Add(request);
