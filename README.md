@@ -30,6 +30,7 @@ This number will therefore account for the floors traveled while the elevator co
 
 The good! 👍
 
+- Takes into account the time that a passenger enters/exists the elevator 
 - Distribution of residents per floor is taken into account (Less people live on penthouse floors)
 - Request source and destinations are weighted by the floor "interest" (There is a much higher chance that requests come from or go to the ground floor or floors with amenities)
 - Day cycles are taken into account (In the morning, people are going to work so requests tend to down to the ground floor and around 5 there is a spike of requests from the ground floor to the apartments after work)
@@ -76,3 +77,45 @@ chose the option with the least penalty
 The smart relocation is a plugin system that can be plugged to any elevator AI. It tracks the distribution of requests that were made in the last half hour.
 When an elevator is done servicing all its requests and becomes idle, it calculates its most optimal positioning in the building relative to the other elevators such that the waiting time for any new request is minimized (weighted by floor based on probability).
 The probability distribution for new requests is approximated by the distribution that was tracked over the last half hour.
+
+## Results
+
+The below results were ran with the following configuration:
+
+
+Simulation days : ````25````
+
+Ticks per day: ````86400	````
+
+Number of elevators: ````3	````
+
+Number of building floors: ````34	````
+
+Elevator speed per tick: ````1	````
+
+Loading time in ticks: ````5	````
+
+Residents per floor: ````[24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 21, 21, 21, 21, 21, 19, 19, 19, 19, 19, 19, 19, 16, 16, 14, 14, 14, 14, 12, 10]````
+
+Interest per floor: ````[7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1]````
+
+
+<p align="center">
+  <img src="img/results_raw.png" width="700" />
+</p>
+
+When the elevator has knowledge of the destination of the requests without having to pick them up, it can make more optimized decisions to minimize the target metrics. As we can see, the optimized AI is able to shave off a bit of waiting time and even reduce the floors traveled for the elevator which reduces the energy usage.
+
+On the other hand, the smart relocation reduces the waiting time by a significant amount. We can see that as the number of requests per person per day increases, the elevators are much busier and dont get to relocate. The curve with the smart relocation then slowly converges towards the curve without the relocation.
+
+Furthermore, we see that both strategies do not have a large impact on the travel time at all.
+
+<p align="center">
+  <img src="img/results_percent.PNG" width="900" />
+</p>
+
+The above graph shows the same results as a percentage change relative to the baseline regular AI. We can see that the optimized AI is able to reduce both the waiting time and the floors traveled by a small amount.
+
+The relocation is very interesting. There is a small increase in floors traveled (energy used) but there is also a significant decrease in the waiting time. For example, when using the Optimized algorithm with the smart relocation, for the points at an average requests per person per day of 4 which is fairly realistic. There is an increase in floors traveled (energy used) of only about 13% for a decrease in average waiting time of 53%. Compared to the baseline, we can cut the waiting time in half with a 13% increase in floors traveled (energy used)
+
+This is quite awesome!
